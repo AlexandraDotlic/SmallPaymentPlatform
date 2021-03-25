@@ -17,6 +17,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccess", "DataAccess", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Infrastructure.DataAccess.EfCoreDataAccess", "Core\Infrastructure\DataAccess\EfCoreDataAccess\Core.Infrastructure.DataAccess.EfCoreDataAccess.csproj", "{612995AB-2F16-4F51-A94B-D482757BA220}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{FD60A619-3B76-45A6-A38A-68857B552990}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Utils", "Common\Utils\Utils\Common.Utils.csproj", "{0A2652AB-0175-46A3-B01D-1DD74FEC6FDB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +39,10 @@ Global
 		{612995AB-2F16-4F51-A94B-D482757BA220}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{612995AB-2F16-4F51-A94B-D482757BA220}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{612995AB-2F16-4F51-A94B-D482757BA220}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A2652AB-0175-46A3-B01D-1DD74FEC6FDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A2652AB-0175-46A3-B01D-1DD74FEC6FDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A2652AB-0175-46A3-B01D-1DD74FEC6FDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A2652AB-0175-46A3-B01D-1DD74FEC6FDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -45,6 +53,7 @@ Global
 		{DF720191-1768-4712-9CF0-D7E7DC09AF71} = {9DE6A851-B3E9-4C25-8BE1-2E62E7629CC8}
 		{DA409569-26A7-42E0-A073-646596A2BC48} = {6A8140A0-4DEA-4593-A5AF-7E12C5E85066}
 		{612995AB-2F16-4F51-A94B-D482757BA220} = {DA409569-26A7-42E0-A073-646596A2BC48}
+		{0A2652AB-0175-46A3-B01D-1DD74FEC6FDB} = {FD60A619-3B76-45A6-A38A-68857B552990}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6FCAFE2D-7BE0-441E-91A4-6A88FB560A09}
