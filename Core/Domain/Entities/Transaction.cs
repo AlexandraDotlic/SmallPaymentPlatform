@@ -10,6 +10,7 @@ namespace Core.Domain.Entities
         public decimal Amount { get; private set; }
         public DateTime TransactionDateTime { get; private set; }
         public TransactionType Type { get; private set; }
+        public Wallet Wallet { get; private set; }
 
 
     }

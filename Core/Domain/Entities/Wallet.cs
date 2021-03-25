@@ -13,6 +13,8 @@ namespace Core.Domain.Entities
         public string BankAccountNumber { get; private set; }
         public string BankPIN { get; private set; }
         public decimal Balance { get; private set; }
+        public ICollection<Transaction> Transactions { get; private set; }
+        public string PASS { get; private set; }
 
     }
 }
