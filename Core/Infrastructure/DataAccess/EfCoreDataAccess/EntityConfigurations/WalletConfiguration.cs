@@ -18,6 +18,7 @@ namespace Core.Infrastructure.DataAccess.EfCoreDataAccess.EntityConfigurations
             builder.Property(w => w.BankPIN).HasMaxLength(4);
             builder.Property(w => w.BankAccountNumber).HasMaxLength(18);
             builder.Property(w => w.PASS).HasMaxLength(6);
+            builder.Property(w => w.Balance).HasPrecision(12, 2);
         }
     }
 }

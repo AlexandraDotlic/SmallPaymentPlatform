@@ -1,4 +1,5 @@
 ﻿using Core.Domain.Entities;
+using Core.Infrastructure.DataAccess.EfCoreDataAccess.EntityConfigurations;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -15,6 +16,10 @@ namespace EfCoreDataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new WalletConfiguration());
+            modelBuilder.ApplyConfiguration(new TransactionConfiguration());
+
+
             base.OnModelCreating(modelBuilder);
         }
 
