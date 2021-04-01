@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebClient", "WebClient\WebClient.csproj", "{6ABCEC50-5B27-4342-8150-D645DA7DC7A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebClient", "WebClient\WebClient.csproj", "{6ABCEC50-5B27-4342-8150-D645DA7DC7A3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Applications", "{016EAB03-1062-44C9-9C01-892F8FEEB529}"
 EndProject
@@ -11,17 +11,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{9DE6A851-B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{6A8140A0-4DEA-4593-A5AF-7E12C5E85066}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Domain", "Core\Domain\Core.Domain.csproj", "{DF720191-1768-4712-9CF0-D7E7DC09AF71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Domain", "Core\Domain\Core.Domain.csproj", "{DF720191-1768-4712-9CF0-D7E7DC09AF71}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccess", "DataAccess", "{DA409569-26A7-42E0-A073-646596A2BC48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Infrastructure.DataAccess.EfCoreDataAccess", "Core\Infrastructure\DataAccess\EfCoreDataAccess\Core.Infrastructure.DataAccess.EfCoreDataAccess.csproj", "{612995AB-2F16-4F51-A94B-D482757BA220}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Infrastructure.DataAccess.EfCoreDataAccess", "Core\Infrastructure\DataAccess\EfCoreDataAccess\Core.Infrastructure.DataAccess.EfCoreDataAccess.csproj", "{612995AB-2F16-4F51-A94B-D482757BA220}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{FD60A619-3B76-45A6-A38A-68857B552990}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Utils", "Common\Utils\Utils\Common.Utils.csproj", "{0A2652AB-0175-46A3-B01D-1DD74FEC6FDB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Utils", "Common\Utils\Utils\Common.Utils.csproj", "{0A2652AB-0175-46A3-B01D-1DD74FEC6FDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.ApplicationServices", "Core\ApplicationServices\Core.ApplicationServices.csproj", "{0FB26733-8E10-437B-99EF-48E49EACD2AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.ApplicationServices", "Core\ApplicationServices\Core.ApplicationServices.csproj", "{0FB26733-8E10-437B-99EF-48E49EACD2AA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{256A7BAF-A221-413C-80D9-8AE86935F515}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.CoreApplicationServicesTests", "Tests\CoreApplicationServicesTests\Tests.CoreApplicationServicesTests.csproj", "{5CF93627-41F3-413A-8576-35EFE1BA8F88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +53,10 @@ Global
 		{0FB26733-8E10-437B-99EF-48E49EACD2AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FB26733-8E10-437B-99EF-48E49EACD2AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FB26733-8E10-437B-99EF-48E49EACD2AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CF93627-41F3-413A-8576-35EFE1BA8F88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CF93627-41F3-413A-8576-35EFE1BA8F88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CF93627-41F3-413A-8576-35EFE1BA8F88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CF93627-41F3-413A-8576-35EFE1BA8F88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,6 +69,7 @@ Global
 		{612995AB-2F16-4F51-A94B-D482757BA220} = {DA409569-26A7-42E0-A073-646596A2BC48}
 		{0A2652AB-0175-46A3-B01D-1DD74FEC6FDB} = {FD60A619-3B76-45A6-A38A-68857B552990}
 		{0FB26733-8E10-437B-99EF-48E49EACD2AA} = {9DE6A851-B3E9-4C25-8BE1-2E62E7629CC8}
+		{5CF93627-41F3-413A-8576-35EFE1BA8F88} = {256A7BAF-A221-413C-80D9-8AE86935F515}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6FCAFE2D-7BE0-441E-91A4-6A88FB560A09}

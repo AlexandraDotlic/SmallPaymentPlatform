@@ -1,5 +1,6 @@
 ﻿using Common.Utils;
 using Core.Domain.Repositories;
+using Core.Infrastructure.DataAccess.EfCoreDataAccess.Repositories;
 using EfCoreDataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -13,11 +14,14 @@ namespace Core.Infrastructure.DataAccess.EfCoreDataAccess
         private readonly EfCoreDbContext Context;
         private IDbContextTransaction Transaction;
 
-        
+        public IWalletRepository WalletRepository { get; }
+
 
         public EfCoreUnitOfWork(EfCoreDbContext context)
         {
             Context = context;
+
+            WalletRepository = new WalletRepository(context);
         }
 
         public async Task BeginTransactionAsync()
@@ -58,6 +62,7 @@ namespace Core.Infrastructure.DataAccess.EfCoreDataAccess
         #region IDisposable implementation
 
         private bool disposedValue = false; // To detect redundant calls
+
 
         protected virtual void Dispose(bool disposing)
         {
