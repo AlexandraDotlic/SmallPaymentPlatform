@@ -38,13 +38,13 @@ namespace Tests.CoreApplicationServicesTests
             BankService bankService = new BankService();
             WalletService walletService = new WalletService(CoreUnitOfWork, bankService);
 
-            string walletPass = await walletService.CreateWallet("1203996780011", "Pera", "Peric", 1, "360123456", "1234");
+            string walletPass = await walletService.CreateWallet("1203977780011", "Pera", "Peric", 1, "360123456", "1234");
 
             Wallet wallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(w => w.PASS == walletPass);
 
             Assert.AreEqual(walletPass.Length, 6);
             Assert.AreNotEqual(null, wallet, "Wallet can't be null");
-            Assert.AreEqual("1203996780011", wallet.JMBG, "JMBG must be equal");
+            Assert.AreEqual("1203977780011", wallet.JMBG, "JMBG must be equal");
             Assert.AreEqual("Pera", wallet.FirstName);
             Assert.AreEqual("Peric", wallet.LastName);
             Assert.AreEqual(1, (short)wallet.Bank);
