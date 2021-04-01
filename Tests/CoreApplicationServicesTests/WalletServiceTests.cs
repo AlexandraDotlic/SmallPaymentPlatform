@@ -4,6 +4,7 @@ using Core.Domain.Repositories;
 using Core.Infrastructure.DataAccess.EfCoreDataAccess;
 using EfCoreDataAccess;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MockBankService;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -34,7 +35,8 @@ namespace Tests.CoreApplicationServicesTests
         [TestMethod]
         public async Task TestCreateWallet()
         {
-            WalletService walletService = new WalletService(CoreUnitOfWork);
+            BankService bankService = new BankService();
+            WalletService walletService = new WalletService(CoreUnitOfWork, bankService);
 
             string walletPass = await walletService.CreateWallet("1203996780011", "Pera", "Peric", 1, "360123456", "1234");
 

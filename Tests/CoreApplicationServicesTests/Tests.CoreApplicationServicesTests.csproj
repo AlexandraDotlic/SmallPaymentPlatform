@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ApplicationServices\Core.ApplicationServices.csproj" />
     <ProjectReference Include="..\..\Core\Infrastructure\DataAccess\EfCoreDataAccess\Core.Infrastructure.DataAccess.EfCoreDataAccess.csproj" />
+    <ProjectReference Include="..\..\MockBankService\Core.Infrastructure.Services.MockBankService.csproj" />
   </ItemGroup>
 
 </Project>

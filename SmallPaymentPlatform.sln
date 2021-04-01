@@ -27,6 +27,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{256A7BAF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.CoreApplicationServicesTests", "Tests\CoreApplicationServicesTests\Tests.CoreApplicationServicesTests.csproj", "{5CF93627-41F3-413A-8576-35EFE1BA8F88}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{2F0E25DB-C4FB-4A18-BB77-6E36A25A36DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Infrastructure.Services.MockBankService", "MockBankService\Core.Infrastructure.Services.MockBankService.csproj", "{4631BA4C-357B-4954-A85C-14B6ED5043A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +61,10 @@ Global
 		{5CF93627-41F3-413A-8576-35EFE1BA8F88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CF93627-41F3-413A-8576-35EFE1BA8F88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CF93627-41F3-413A-8576-35EFE1BA8F88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4631BA4C-357B-4954-A85C-14B6ED5043A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4631BA4C-357B-4954-A85C-14B6ED5043A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4631BA4C-357B-4954-A85C-14B6ED5043A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4631BA4C-357B-4954-A85C-14B6ED5043A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +78,8 @@ Global
 		{0A2652AB-0175-46A3-B01D-1DD74FEC6FDB} = {FD60A619-3B76-45A6-A38A-68857B552990}
 		{0FB26733-8E10-437B-99EF-48E49EACD2AA} = {9DE6A851-B3E9-4C25-8BE1-2E62E7629CC8}
 		{5CF93627-41F3-413A-8576-35EFE1BA8F88} = {256A7BAF-A221-413C-80D9-8AE86935F515}
+		{2F0E25DB-C4FB-4A18-BB77-6E36A25A36DF} = {6A8140A0-4DEA-4593-A5AF-7E12C5E85066}
+		{4631BA4C-357B-4954-A85C-14B6ED5043A2} = {2F0E25DB-C4FB-4A18-BB77-6E36A25A36DF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6FCAFE2D-7BE0-441E-91A4-6A88FB560A09}
