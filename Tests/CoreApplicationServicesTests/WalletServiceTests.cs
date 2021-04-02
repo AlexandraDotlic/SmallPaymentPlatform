@@ -1,6 +1,7 @@
 ﻿using ApplicationServices;
 using Core.Domain.Entities;
 using Core.Domain.Repositories;
+using Core.Domain.Services.Internal.BankRoutinService.Implementations;
 using Core.Infrastructure.DataAccess.EfCoreDataAccess;
 using EfCoreDataAccess;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,7 +37,8 @@ namespace Tests.CoreApplicationServicesTests
         public async Task TestCreateWallet()
         {
             BankService bankService = new BankService();
-            WalletService walletService = new WalletService(CoreUnitOfWork, bankService);
+            BankRoutingService bankRoutingService = new BankRoutingService(bankService);
+            WalletService walletService = new WalletService(CoreUnitOfWork, bankRoutingService);
 
             string walletPass = await walletService.CreateWallet("1203977780011", "Pera", "Peric", 1, "360123456", "1234");
 
