@@ -6,8 +6,6 @@ namespace Core.Domain.Entities
 {
     public class Wallet
     {
-  
-
         public string JMBG { get; private set; }
         public string FirstName { get; private set; }
         public string LastName { get; private set; }
@@ -17,7 +15,14 @@ namespace Core.Domain.Entities
         public decimal Balance { get; private set; }
         public ICollection<Transaction> Transactions { get; private set; }
         public string PASS { get; private set; }
+        public DateTime LastTransactionDateTime { get; private set; }
+        public decimal UsedDepositForCurrentMonth { get; private set; }
+        public decimal UsedWithdrawalForCurrentMonth { get; private set; }
+        public bool IsBlocked { get; private set; }
+        public Wallet()
+        {
 
+        }
         public Wallet(
             string jMBG, 
             string firstName,
