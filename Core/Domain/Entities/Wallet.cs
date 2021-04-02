@@ -43,5 +43,30 @@ namespace Core.Domain.Entities
             PASS = Guid.NewGuid().ToString().Substring(0, 6);
         }
 
+        public void PayIn(decimal amount, TransactionType type, decimal maxDeposit)
+        {
+            if (UsedDepositForCurrentMonth + amount > maxDeposit)
+            {
+                throw new InvalidOperationException($"Transaction not allowed: Monthly deposit limit ({maxDeposit} RSD) would be exceeded.");
+            }
+
+            Balance += amount;
+
+            if (LastTransactionDateTime.Month != DateTime.Now.Month 
+                || LastTransactionDateTime.Year != DateTime.Now.Year)
+            {
+                UsedDepositForCurrentMonth = 0m;
+                UsedWithdrawalForCurrentMonth = 0m;
+            }
+
+            UsedDepositForCurrentMonth += amount;
+
+            var transaction = new Transaction(amount, type, this);
+
+            Transactions.Add(transaction);
+
+            LastTransactionDateTime = transaction.TransactionDateTime;
+        }
+
     }
 }
