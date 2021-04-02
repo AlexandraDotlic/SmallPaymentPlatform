@@ -9,11 +9,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Core\ApplicationServices\Core.ApplicationServices.csproj" />
     <ProjectReference Include="..\Core\Domain\Core.Domain.csproj" />
     <ProjectReference Include="..\Core\Infrastructure\DataAccess\EfCoreDataAccess\Core.Infrastructure.DataAccess.EfCoreDataAccess.csproj" />
+    <ProjectReference Include="..\MockBankService\Core.Infrastructure.Services.MockBankService.csproj" />
   </ItemGroup>
 
 </Project>

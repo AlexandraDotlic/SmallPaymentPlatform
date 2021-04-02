@@ -1,4 +1,6 @@
+using ApplicationServices;
 using Core.Domain.Repositories;
+using Core.Domain.Services.External.BankService;
 using Core.Infrastructure.DataAccess.EfCoreDataAccess;
 using EfCoreDataAccess;
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MockBankService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +37,8 @@ namespace WebClient
                 options.UseSqlServer(Configuration.GetConnectionString("SmallPaymentPlatformDevConnection"));
             });
             services.AddScoped<ICoreUnitOfWork, EfCoreUnitOfWork>();
+            services.AddScoped<WalletService>();
+            services.AddScoped<IBankService, BankService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
