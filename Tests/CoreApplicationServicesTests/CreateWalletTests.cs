@@ -32,6 +32,8 @@ namespace Tests.CoreApplicationServicesTests
 
             var inMemoryCollection = new Dictionary<string, string> {
                 {"MaxDeposit", "1000000"},
+                {"MaxWithdraw", "1000000"},
+
             };
 
             Configuration = new ConfigurationBuilder()
