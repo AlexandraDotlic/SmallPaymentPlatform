@@ -120,10 +120,10 @@ namespace ApplicationServices
                 wallet.PayOut(amount, TransactionType.Withdraw, MaxWithdraw);
                 await CoreUnitOfWork.WalletRepository.Update(wallet);
                 await CoreUnitOfWork.SaveChangesAsync();
-                var withdrawResponse = await BankRoutingService.Deposit(jmbg, wallet.BankPIN, amount, wallet.Bank);
-                if (!withdrawResponse.IsSuccess)
+                var depositResponse = await BankRoutingService.Deposit(jmbg, wallet.BankPIN, amount, wallet.Bank);
+                if (!depositResponse.IsSuccess)
                 {
-                    throw new InvalidOperationException(withdrawResponse.ErrorMessage);
+                    throw new InvalidOperationException(depositResponse.ErrorMessage);
                 }
 
                 await CoreUnitOfWork.CommitTransactionAsync();
@@ -135,6 +135,62 @@ namespace ApplicationServices
             }
 
         }
+
+        public async Task Transfer(string sourceWalletJmbg, string sourceWalletPass, decimal amount, string destinationWalletJmbg)
+        {
+            if (amount < 0)
+            {
+                throw new InvalidOperationException("Amount must be greater than 0");
+            }
+            Wallet sourceWallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(
+                w => w.JMBG == sourceWalletJmbg && w.PASS == sourceWalletPass,
+                w => w.Transactions
+                );
+            if (sourceWallet == null)
+            {
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {sourceWalletJmbg} and password = {sourceWalletPass} doesn't exist");
+            }
+            if (sourceWallet.IsBlocked)
+            {
+                throw new InvalidOperationException($"{nameof(Deposit)} forbidden for blocked wallet");
+            }
+
+            Wallet destinationWallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(
+                w => w.JMBG == destinationWalletJmbg,
+                w => w.Transactions
+                );
+            if (destinationWallet == null)
+            {
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {sourceWalletJmbg} doesn't exist");
+            }
+            if (destinationWallet.IsBlocked)
+            {
+                throw new InvalidOperationException($"{nameof(Transfer)} forbidden for blocked wallet");
+            }
+
+            await CoreUnitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                sourceWallet.PayOut(amount, TransactionType.TransferPayOut, MaxWithdraw);
+                destinationWallet.PayIn(amount, TransactionType.TransferPayIn, MaxDeposit);
+
+                await CoreUnitOfWork.WalletRepository.Update(sourceWallet);
+                await CoreUnitOfWork.SaveChangesAsync();
+
+                await CoreUnitOfWork.WalletRepository.Update(destinationWallet);
+                await CoreUnitOfWork.SaveChangesAsync();
+
+                await CoreUnitOfWork.CommitTransactionAsync();
+            }
+            catch (InvalidOperationException ex)
+            {
+                await CoreUnitOfWork.RollbackTransactionAsync();
+                throw ex;
+            }
+
+        }
+
 
     }
 }
