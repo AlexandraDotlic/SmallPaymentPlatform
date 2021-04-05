@@ -219,6 +219,29 @@ namespace ApplicationServices
 
         }
 
+        public async Task<decimal> CalculateTransferFee(string jmbg, string pass, decimal amount)
+        {
+            if (amount < 0)
+            {
+                throw new InvalidOperationException("Amount must be greater than 0");
+            }
+            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(
+                w => w.JMBG == jmbg && w.PASS == pass,
+                w => w.Transactions
+                );
+            if (wallet == null)
+            {
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} and password = {pass} doesn't exist");
+            }
+            if (wallet.IsBlocked)
+            {
+                throw new InvalidOperationException($"{nameof(CalculateTransferFee)} forbidden for blocked wallet");
+            }
+            decimal fee = await FeeService.CalculateTransferFee(wallet, amount, DaysAfterWalletCreationWithNoFee, IsFirstTransferFreeInMonth, FixedFee, PercentageFee, FeeLimit);
+
+            return fee;
+        }
+
 
     }
 }

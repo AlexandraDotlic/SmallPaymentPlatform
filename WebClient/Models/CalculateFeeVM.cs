@@ -6,19 +6,14 @@ using System.Threading.Tasks;
 
 namespace WebClient.Models
 {
-    public class WalletTransferVM
+    public class CalculateFeeVM
     {
         [Required]
         [StringLength(13, ErrorMessage = "JMBG must be 13 characters long. ", MinimumLength = 13)]
-        public string SourceJMBG { get; set; }
+        public string JMBG { get; set; }
         [Required]
-        public string SourcePASS { get; set; }
-        [Required]
-        [StringLength(13, ErrorMessage = "JMBG must be 13 characters long. ", MinimumLength = 13)]
-        public string DestinationJMBG { get; set; }
+        public string PASS { get; set; }
         [Required]
         public decimal Amount { get; set; }
-        [Required]
-        public decimal Fee { get; set; }
     }
 }
