@@ -43,7 +43,7 @@ namespace Core.Domain.Entities
             PASS = Guid.NewGuid().ToString().Substring(0, 6);
         }
 
-        public void PayIn(decimal amount, TransactionType type, decimal maxDeposit)
+        public void PayIn(decimal amount, TransactionType transactionType, decimal maxDeposit)
         {
             if (UsedDepositForCurrentMonth + amount > maxDeposit)
             {
@@ -61,12 +61,37 @@ namespace Core.Domain.Entities
 
             UsedDepositForCurrentMonth += amount;
 
-            var transaction = new Transaction(amount, type, this);
+            var transaction = new Transaction(amount, transactionType, this);
 
             Transactions.Add(transaction);
 
             LastTransactionDateTime = transaction.TransactionDateTime;
         }
+        public void PayOut(decimal amount, TransactionType transactionType, decimal maxWithdrawal)
+        {
+            if (UsedWithdrawalForCurrentMonth + amount > maxWithdrawal)
+            {
+                throw new InvalidOperationException($"Transaction not allowed: Monthly withdrawal limit ({maxWithdrawal} RSD) would be exceeded.");
+            }
+            if(amount > Balance)
+            {
+                throw new InvalidOperationException("Not enough funds");
+            }
+            Balance -= amount;
+
+            if (LastTransactionDateTime.Month != DateTime.Now.Month
+               || LastTransactionDateTime.Year != DateTime.Now.Year)
+            {
+                UsedDepositForCurrentMonth = 0m;
+                UsedWithdrawalForCurrentMonth = 0m;
+            }
+
+            UsedWithdrawalForCurrentMonth += amount;
+            var transaction = new Transaction(amount, transactionType, this);
+            Transactions.Add(transaction);
+            LastTransactionDateTime = transaction.TransactionDateTime;
+        }
+
 
     }
 }

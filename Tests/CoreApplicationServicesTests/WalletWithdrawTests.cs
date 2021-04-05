@@ -5,20 +5,18 @@ using Core.Domain.Services.Internal.BankRoutinService.Implementations;
 using Core.Domain.Services.Internal.BankRoutinService.Interface;
 using Core.Infrastructure.DataAccess.EfCoreDataAccess;
 using EfCoreDataAccess;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MockBankService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Tests.CoreApplicationServicesTests
 {
     [TestClass]
-    public class WalletDepositTests
+    public class WalletWithdrawTests
     {
         private ICoreUnitOfWork CoreUnitOfWork;
         private EfCoreDbContext DbContext;
@@ -35,9 +33,8 @@ namespace Tests.CoreApplicationServicesTests
             BankRoutingService = new BankRoutingService(firstBankService);
 
             var inMemorySettings = new Dictionary<string, string> {
-                {"MaxDeposit", "1000000"},
-                {"MaxWithdraw", "1000000"},
-
+                {"MaxDeposit", "1000000" },
+                { "MaxWithdraw", "100000"},
             };
 
             Configuration = new ConfigurationBuilder()
@@ -64,26 +61,27 @@ namespace Tests.CoreApplicationServicesTests
         }
 
         [TestMethod]
-        public async Task SuccessWalletDepositTest()
+        public async Task SuccessWalletWithdrawTest()
         {
-            
+
             try
             {
                 string jmbg = "2904992785075";
                 //Arrange
                 var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
-                string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874","1234");
-
+                string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
+                await walletService.Deposit(jmbg, password, 2000m);
                 //Act
-                await walletService.Deposit(jmbg, password, 1000m);
+
+                await walletService.Withdraw(jmbg, password, 1000m);
 
                 //Assert
                 Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
 
                 Assert.AreEqual(1000m, wallet.Balance, "Balance must be 1000");
                 Assert.AreNotEqual(0, wallet.Transactions.Count(), "Transaction count must be different than 0");
-                Assert.AreEqual(TransactionType.Deposit, wallet.Transactions.FirstOrDefault(transaction => transaction.Type == TransactionType.Deposit).Type);
-                Assert.AreEqual(1000m, wallet.Transactions.FirstOrDefault(transaction => transaction.Type == TransactionType.Deposit).Amount, $"Transaction amount must be 10000.");
+                Assert.AreEqual(TransactionType.Withdraw, wallet.Transactions.FirstOrDefault(transaction => transaction.Type == TransactionType.Withdraw).Type);
+                Assert.AreEqual(1000m, wallet.Transactions.FirstOrDefault(transaction => transaction.Type == TransactionType.Withdraw).Amount, $"Transaction amount must be 10000.");
 
             }
             catch (Exception ex)
@@ -93,7 +91,7 @@ namespace Tests.CoreApplicationServicesTests
         }
 
         [TestMethod]
-        public async Task FailWalletDepositTest1()
+        public async Task FailWalletWithdrawTest1()
         {
             try
             {
@@ -103,7 +101,7 @@ namespace Tests.CoreApplicationServicesTests
                 string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
 
                 //Assert
-                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Deposit(jmbg, password, 2000000m), $"Exceeded monthly deposit limit ({Configuration["MaxDeposit"]} RSD).");
+                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Withdraw(jmbg, password, 2000000m), $"Exceeded monthly withdraw limit ({Configuration["MaxDeposit"]} RSD).");
             }
             catch (Exception ex)
             {
@@ -114,7 +112,7 @@ namespace Tests.CoreApplicationServicesTests
 
 
         [TestMethod]
-        public async Task FailWalletDepositTest2()
+        public async Task FailWalletWithdrawTest2()
         {
             try
             {
@@ -125,12 +123,32 @@ namespace Tests.CoreApplicationServicesTests
 
                 //Act
                 //Assert
-                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Deposit(jmbg, pass, 1000m), $"Wallet doesn't exist");
+                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Withdraw(jmbg, pass, 1000m), $"Wallet doesn't exist");
             }
             catch (Exception ex)
             {
                 Assert.Fail("Unexpected error: " + ex.Message);
             }
+        }
+
+        [TestMethod]
+        public async Task FailWalletWithdrawTest3()
+        {
+            try
+            {
+                string jmbg = "2904992785075";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
+                string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
+
+                //Assert
+                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Withdraw(jmbg, password, 1000m), $"Not enough funds on wallet.");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
+
         }
 
     }

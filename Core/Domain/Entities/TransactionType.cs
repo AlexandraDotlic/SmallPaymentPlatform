@@ -8,5 +8,6 @@ namespace Core.Domain.Entities
     {
         Undefined = 0,
         Deposit = 1,
+        Withdraw = 2,
     }
 }
