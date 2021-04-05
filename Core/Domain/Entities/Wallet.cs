@@ -73,6 +73,10 @@ namespace Core.Domain.Entities
             {
                 throw new InvalidOperationException($"Transaction not allowed: Monthly withdrawal limit ({maxWithdrawal} RSD) would be exceeded.");
             }
+            if(amount > Balance)
+            {
+                throw new InvalidOperationException("Not enough funds");
+            }
             Balance -= amount;
 
             if (LastTransactionDateTime.Month != DateTime.Now.Month
