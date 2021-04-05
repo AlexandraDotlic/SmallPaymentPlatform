@@ -30,14 +30,39 @@ namespace WebClient.Controllers
             {
                 pass = await WalletService.CreateWallet(walletVM.JMBG, walletVM.FirstName, walletVM.LastName, walletVM.BankType, walletVM.BankAccountNumber, walletVM.BankPIN);
                 ModelState.Clear();
-                return View(new WalletVM() { PASS = pass });
+                ViewData["Success"] = "True";
+                ViewData["WalletPASS"] = pass;
+                return View();
             }
             catch (Exception ex)
             {
 
                 ViewData["ErrorMessage"] = ex.Message;
+                ViewData["Success"] = "False";
+                return View();
+            }
+        }
+        [HttpGet]
+        public IActionResult Deposit()
+        {
+            return View();
+        }
 
-                return View("ErrorMessage");
+        [HttpPost]
+        public async Task<IActionResult> Deposit(WalletDepositVM walletDepositVM)
+        {
+            try
+            {
+                await WalletService.Deposit(walletDepositVM.JMBG, walletDepositVM.PASS, walletDepositVM.Amount);
+                ModelState.Clear();
+                ViewData["Success"] = "True";
+                return View();
+            }
+            catch (Exception ex)
+            {
+                ViewData["ErrorMessage"] = ex.Message;
+                ViewData["Success"] = "False";
+                return View();
             }
         }
     }
