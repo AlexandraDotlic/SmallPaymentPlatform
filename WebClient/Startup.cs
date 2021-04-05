@@ -40,7 +40,7 @@ namespace WebClient
             });
             services.AddScoped<ICoreUnitOfWork, EfCoreUnitOfWork>();
             services.AddScoped<WalletService>();
-            services.AddScoped<IFirstBankService, BankService>();
+            services.AddScoped<IFirstBankService, FirstBankService>();
             services.AddScoped<IBankRoutingService, BankRoutingService>();
         }
 

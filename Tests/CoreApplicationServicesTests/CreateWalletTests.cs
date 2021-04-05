@@ -2,8 +2,10 @@
 using Core.Domain.Entities;
 using Core.Domain.Repositories;
 using Core.Domain.Services.Internal.BankRoutinService.Implementations;
+using Core.Domain.Services.Internal.BankRoutinService.Interface;
 using Core.Infrastructure.DataAccess.EfCoreDataAccess;
 using EfCoreDataAccess;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MockBankService;
 using System;
@@ -14,10 +16,12 @@ using System.Threading.Tasks;
 namespace Tests.CoreApplicationServicesTests
 {
     [TestClass]
-    public class WalletServiceTests
+    public class CreateWalletTests
     {
         private ICoreUnitOfWork CoreUnitOfWork;
         private EfCoreDbContext DbContext;
+        private IBankRoutingService BankRoutingService;
+        private IConfiguration Configuration;
 
         [TestInitialize]
         public void Setup()
@@ -25,6 +29,16 @@ namespace Tests.CoreApplicationServicesTests
             var dbContextFactory = new SampleDbContextFactory();
             DbContext = dbContextFactory.CreateDbContext(new string[] { });
             CoreUnitOfWork = new EfCoreUnitOfWork(DbContext);
+
+            var inMemoryCollection = new Dictionary<string, string> {
+                {"MaxDeposit", "1000000"},
+            };
+
+            Configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemoryCollection)
+                .Build();
+            var firstBankService = new FirstBankService();
+            BankRoutingService = new BankRoutingService(firstBankService);
         }
 
         [TestCleanup()]
@@ -36,9 +50,8 @@ namespace Tests.CoreApplicationServicesTests
         [TestMethod]
         public async Task TestCreateWallet()
         {
-            BankService bankService = new BankService();
-            BankRoutingService bankRoutingService = new BankRoutingService(bankService);
-            WalletService walletService = new WalletService(CoreUnitOfWork, bankRoutingService);
+
+            WalletService walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
 
             string walletPass = await walletService.CreateWallet("1203977780011", "Pera", "Peric", 1, "360123456", "1234");
 

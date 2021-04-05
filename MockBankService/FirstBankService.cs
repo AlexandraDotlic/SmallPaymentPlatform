@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 namespace MockBankService
 {
-    public class BankService : IFirstBankService
+    public class FirstBankService : IFirstBankService
     {
-        public BankService()
+        public FirstBankService()
         {
                 
         }
