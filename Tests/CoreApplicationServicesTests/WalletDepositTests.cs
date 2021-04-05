@@ -90,5 +90,46 @@ namespace Tests.CoreApplicationServicesTests
             }
         }
 
+        [TestMethod]
+        public async Task FailWalletDepositTest1()
+        {
+            try
+            {
+                string jmbg = "2904992785075";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
+                string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
+
+                //Assert
+                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Deposit(jmbg, password, 2000000m), $"Exceeded monthly deposit limit ({Configuration["MaxDeposit"]} RSD).");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
+
+        }
+
+
+        [TestMethod]
+        public async Task FailWalletDepositTest2()
+        {
+            try
+            {
+                string jmbg = "2904992785072";
+                string pass = "abcdef";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
+
+                //Act
+                //Assert
+                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Deposit(jmbg, pass, 1000m), $"Wallet doesn't exist");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
+        }
+
     }
 }
