@@ -75,7 +75,7 @@ namespace Core.Domain.Entities
             }
             if(amount > Balance)
             {
-                throw new InvalidOperationException("Not enough funds");
+                throw new InvalidOperationException($"insufficient funds in wallet with JMBG = {JMBG}");
             }
             Balance -= amount;
 

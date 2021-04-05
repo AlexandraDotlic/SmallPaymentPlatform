@@ -72,11 +72,35 @@ namespace WebClient.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Withdraw(WalletWithdrawVM walletDepositVM)
+        public async Task<IActionResult> Withdraw(WalletWithdrawVM walletWithdrawVM)
         {
             try
             {
-                await WalletService.Withdraw(walletDepositVM.JMBG, walletDepositVM.PASS, walletDepositVM.Amount);
+                await WalletService.Withdraw(walletWithdrawVM.JMBG, walletWithdrawVM.PASS, walletWithdrawVM.Amount);
+                ModelState.Clear();
+                ViewData["Success"] = "True";
+                return View();
+            }
+            catch (Exception ex)
+            {
+                ViewData["ErrorMessage"] = ex.Message;
+                ViewData["Success"] = "False";
+                return View();
+            }
+        }
+
+        [HttpGet]
+        public IActionResult Transfer()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Transfer(WalletTransferVM walletTransferVM)
+        {
+            try
+            {
+                await WalletService.Transfer(walletTransferVM.SourceJMBG, walletTransferVM.SourcePASS, walletTransferVM.Amount, walletTransferVM.DestinationJMBG);
                 ModelState.Clear();
                 ViewData["Success"] = "True";
                 return View();
