@@ -10,7 +10,6 @@ namespace WebClient.Models
     {
         public WalletVM()
         {
-            PASS = "123456";
         }
 
         public WalletVM(
