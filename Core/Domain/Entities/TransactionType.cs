@@ -11,5 +11,6 @@ namespace Core.Domain.Entities
         Withdraw = 2,
         TransferPayOut = 3,
         TransferPayIn = 4,
+        FeePayOut = 5,
     }
 }

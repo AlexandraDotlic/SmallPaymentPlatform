@@ -3,6 +3,8 @@ using Core.Domain.Entities;
 using Core.Domain.Repositories;
 using Core.Domain.Services.Internal.BankRoutinService.Implementations;
 using Core.Domain.Services.Internal.BankRoutinService.Interface;
+using Core.Domain.Services.Internal.FeeService.Implementations;
+using Core.Domain.Services.Internal.FeeService.Interface;
 using Core.Infrastructure.DataAccess.EfCoreDataAccess;
 using EfCoreDataAccess;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +24,7 @@ namespace Tests.CoreApplicationServicesTests
         private ICoreUnitOfWork CoreUnitOfWork;
         private EfCoreDbContext DbContext;
         private IBankRoutingService BankRoutingService;
+        private IFeeService FeeService;
         private IConfiguration Configuration;
 
         [TestInitialize]
@@ -35,12 +38,19 @@ namespace Tests.CoreApplicationServicesTests
 
             var inMemorySettings = new Dictionary<string, string> {
                 {"MaxDeposit", "1000000" },
-                { "MaxWithdraw", "100000"},
+                {"MaxWithdraw", "100000"},
+                { "DaysAfterWalletCreationWithNoFee","7"},
+                { "IsFirstTransferFreeInMonth", "True" },
+                { "FixedFee","100" },
+                { "FeeLimit", "10000" },
+                { "PercentageFee", "1" }
             };
 
             Configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
+            FeeService = new FeeService();
+
         }
 
         [TestCleanup()]
@@ -80,7 +90,7 @@ namespace Tests.CoreApplicationServicesTests
                 string jmbg1 = "2904992785075";
                 string jmbg2 = "2904990785034";
                 //Arrange
-                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
                 string password1 = await walletService.CreateWallet(jmbg1, "TestIme1", "TestPrezime1", (short)BankType.FirstBank, "360123456789999874", "1234");
                 string password2 = await walletService.CreateWallet(jmbg2, "TestIme2", "TestPrezime2", (short)BankType.FirstBank, "360123456789999889", "1224");
 
@@ -113,6 +123,52 @@ namespace Tests.CoreApplicationServicesTests
         }
 
         [TestMethod]
+        public async Task SuccessWalletTransferWithFeeTest()
+        {
+
+            try
+            {
+                Configuration["IsFirstTransferFreeInMonth"] = "False";
+                Configuration["DaysAfterWalletCreationWithNoFee"] = "0";
+                string jmbg1 = "2904992785075";
+                string jmbg2 = "2904990785034";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+                string password1 = await walletService.CreateWallet(jmbg1, "TestIme1", "TestPrezime1", (short)BankType.FirstBank, "360123456789999874", "1234");
+                string password2 = await walletService.CreateWallet(jmbg2, "TestIme2", "TestPrezime2", (short)BankType.FirstBank, "360123456789999889", "1224");
+
+                await walletService.Deposit(jmbg1, password1, 2000m);
+
+                //Act
+
+                await walletService.Transfer(jmbg1, password1, 500m, jmbg2);
+
+                //Assert
+                Wallet wallet1 = await CoreUnitOfWork.WalletRepository.GetById(jmbg1);
+                Wallet wallet2 = await CoreUnitOfWork.WalletRepository.GetById(jmbg2);
+
+                Assert.AreEqual(1400m, wallet1.Balance, "Balance must be 1400");
+                Assert.AreEqual(500m, wallet2.Balance, "Balance must be 500");
+
+                Assert.AreNotEqual(0, wallet1.Transactions.Count(), "Transaction count must be different than 0");
+                Assert.AreNotEqual(0, wallet2.Transactions.Count(), "Transaction count must be different than 0");
+
+                Assert.AreEqual(TransactionType.TransferPayOut, wallet1.Transactions.FirstOrDefault(transaction => transaction.Type == TransactionType.TransferPayOut).Type);
+                Assert.AreEqual(TransactionType.TransferPayIn, wallet2.Transactions.FirstOrDefault(transaction => transaction.Type == TransactionType.TransferPayIn).Type);
+
+                Assert.AreEqual(TransactionType.FeePayOut, wallet1.Transactions.FirstOrDefault(transaction => transaction.Type == TransactionType.FeePayOut).Type);
+                Assert.AreEqual(100m, wallet1.Transactions.FirstOrDefault(transaction => transaction.Type == TransactionType.FeePayOut).Amount, $"Transaction transfer fee amount must be 100.");
+
+                Assert.AreEqual(500m, wallet1.Transactions.FirstOrDefault(transaction => transaction.Type == TransactionType.TransferPayOut).Amount, $"Transaction amount must be 500.");
+
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
+        }
+
+        [TestMethod]
         public async Task FailWalletTransferTest1()
         {
             try
@@ -120,7 +176,7 @@ namespace Tests.CoreApplicationServicesTests
                 string jmbg1 = "2904992785075";
                 string jmbg2 = "2904990785034";
                 //Arrange
-                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
                 string password1 = await walletService.CreateWallet(jmbg1, "TestIme1", "TestPrezime1", (short)BankType.FirstBank, "360123456789999874", "1234");
                 string password2 = await walletService.CreateWallet(jmbg2, "TestIme2", "TestPrezime2", (short)BankType.FirstBank, "360123456789999889", "1224");
                 await walletService.Deposit(jmbg1, password1, 2000m);
@@ -145,7 +201,7 @@ namespace Tests.CoreApplicationServicesTests
                 string jmbg2 = "2904990785034";
                 string pass = "abcdef";
                 //Arrange
-                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
 
                 //Act
                 //Assert
@@ -165,7 +221,7 @@ namespace Tests.CoreApplicationServicesTests
                 string jmbg1 = "2904992785075";
                 string jmbg2 = "2904990785034";
                 //Arrange
-                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
                 string password1 = await walletService.CreateWallet(jmbg1, "TestIme1", "TestPrezime1", (short)BankType.FirstBank, "360123456789999874", "1234");
                 string password2 = await walletService.CreateWallet(jmbg2, "TestIme2", "TestPrezime2", (short)BankType.FirstBank, "360123456789999889", "1224");
 

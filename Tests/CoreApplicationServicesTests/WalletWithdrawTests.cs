@@ -3,6 +3,8 @@ using Core.Domain.Entities;
 using Core.Domain.Repositories;
 using Core.Domain.Services.Internal.BankRoutinService.Implementations;
 using Core.Domain.Services.Internal.BankRoutinService.Interface;
+using Core.Domain.Services.Internal.FeeService.Implementations;
+using Core.Domain.Services.Internal.FeeService.Interface;
 using Core.Infrastructure.DataAccess.EfCoreDataAccess;
 using EfCoreDataAccess;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +24,7 @@ namespace Tests.CoreApplicationServicesTests
         private EfCoreDbContext DbContext;
         private IBankRoutingService BankRoutingService;
         private IConfiguration Configuration;
+        private IFeeService FeeService;
 
         [TestInitialize]
         public async Task Setup()
@@ -31,10 +34,16 @@ namespace Tests.CoreApplicationServicesTests
             CoreUnitOfWork = new EfCoreUnitOfWork(DbContext);
             var firstBankService = new FirstBankService();
             BankRoutingService = new BankRoutingService(firstBankService);
+            FeeService = new FeeService();
 
             var inMemorySettings = new Dictionary<string, string> {
                 {"MaxDeposit", "1000000" },
-                { "MaxWithdraw", "100000"},
+                {"MaxWithdraw", "100000"},
+                { "DaysAfterWalletCreationWithNoFee","7"},
+                { "IsFirstTransferFreeInMonth", "True" },
+                { "FixedFee","100" },
+                { "FeeLimit", "10000" },
+                { "PercentageFee", "1" }
             };
 
             Configuration = new ConfigurationBuilder()
@@ -68,7 +77,7 @@ namespace Tests.CoreApplicationServicesTests
             {
                 string jmbg = "2904992785075";
                 //Arrange
-                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
                 string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
                 await walletService.Deposit(jmbg, password, 2000m);
                 //Act
@@ -97,7 +106,7 @@ namespace Tests.CoreApplicationServicesTests
             {
                 string jmbg = "2904992785075";
                 //Arrange
-                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
                 string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
 
                 //Assert
@@ -119,7 +128,7 @@ namespace Tests.CoreApplicationServicesTests
                 string jmbg = "2904992785072";
                 string pass = "abcdef";
                 //Arrange
-                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
 
                 //Act
                 //Assert
@@ -138,7 +147,7 @@ namespace Tests.CoreApplicationServicesTests
             {
                 string jmbg = "2904992785075";
                 //Arrange
-                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
                 string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
 
                 //Assert

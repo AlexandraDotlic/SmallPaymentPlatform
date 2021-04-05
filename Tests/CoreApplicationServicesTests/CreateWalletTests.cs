@@ -3,6 +3,8 @@ using Core.Domain.Entities;
 using Core.Domain.Repositories;
 using Core.Domain.Services.Internal.BankRoutinService.Implementations;
 using Core.Domain.Services.Internal.BankRoutinService.Interface;
+using Core.Domain.Services.Internal.FeeService.Implementations;
+using Core.Domain.Services.Internal.FeeService.Interface;
 using Core.Infrastructure.DataAccess.EfCoreDataAccess;
 using EfCoreDataAccess;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +24,7 @@ namespace Tests.CoreApplicationServicesTests
         private EfCoreDbContext DbContext;
         private IBankRoutingService BankRoutingService;
         private IConfiguration Configuration;
+        private IFeeService FeeService;
 
         [TestInitialize]
         public void Setup()
@@ -31,8 +34,13 @@ namespace Tests.CoreApplicationServicesTests
             CoreUnitOfWork = new EfCoreUnitOfWork(DbContext);
 
             var inMemoryCollection = new Dictionary<string, string> {
-                {"MaxDeposit", "1000000"},
-                {"MaxWithdraw", "1000000"},
+                {"MaxDeposit", "1000000" },
+                {"MaxWithdraw", "100000"},
+                { "DaysAfterWalletCreationWithNoFee","7"},
+                { "IsFirstTransferFreeInMonth", "True" },
+                { "FixedFee","100" },
+                { "FeeLimit", "10000" },
+                { "PercentageFee", "1" }
 
             };
 
@@ -41,6 +49,8 @@ namespace Tests.CoreApplicationServicesTests
                 .Build();
             var firstBankService = new FirstBankService();
             BankRoutingService = new BankRoutingService(firstBankService);
+            FeeService = new FeeService();
+
         }
 
         [TestCleanup()]
@@ -53,7 +63,7 @@ namespace Tests.CoreApplicationServicesTests
         public async Task TestCreateWallet()
         {
 
-            WalletService walletService = new WalletService(CoreUnitOfWork, BankRoutingService, Configuration);
+            WalletService walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
 
             string walletPass = await walletService.CreateWallet("1203977780011", "Pera", "Peric", 1, "360123456", "1234");
 
