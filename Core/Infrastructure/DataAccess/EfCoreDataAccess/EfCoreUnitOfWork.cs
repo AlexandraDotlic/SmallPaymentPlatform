@@ -88,5 +88,9 @@ namespace Core.Infrastructure.DataAccess.EfCoreDataAccess
 
         #endregion IDisposable implementation
 
+        public void ClearTracker()
+        {
+            Context.ChangeTracker.Clear();
+        }
     }
 }
