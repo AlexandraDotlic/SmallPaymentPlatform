@@ -19,6 +19,8 @@ namespace Core.Domain.Entities
         public decimal UsedDepositForCurrentMonth { get; private set; }
         public decimal UsedWithdrawalForCurrentMonth { get; private set; }
         public bool IsBlocked { get; private set; }
+        public DateTime WalletCreationTime { get; private set; }
+        public DateTime LastTransferDateTime { get; private set; }
         public Wallet()
         {
 
@@ -41,6 +43,7 @@ namespace Core.Domain.Entities
 
             Transactions = new List<Transaction>();
             PASS = Guid.NewGuid().ToString().Substring(0, 6);
+            WalletCreationTime = DateTime.Now;
         }
 
         public void PayIn(decimal amount, TransactionType transactionType, decimal maxDeposit)
@@ -90,6 +93,10 @@ namespace Core.Domain.Entities
             var transaction = new Transaction(amount, transactionType, this);
             Transactions.Add(transaction);
             LastTransactionDateTime = transaction.TransactionDateTime;
+            if(transactionType == TransactionType.TransferPayOut)
+            {
+                LastTransferDateTime = transaction.TransactionDateTime;
+            }
         }
 
 
