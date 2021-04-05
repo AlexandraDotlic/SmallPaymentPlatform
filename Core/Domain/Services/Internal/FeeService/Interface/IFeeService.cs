@@ -8,6 +8,14 @@ namespace Core.Domain.Services.Internal.FeeService.Interface
 {
     public interface IFeeService
     {
-        Task<decimal> CalculateTransferFee(Wallet wallet, decimal transferAmount);
+        Task<decimal> CalculateTransferFee(
+                    Wallet wallet,
+                    decimal transferAmount,
+                    int DaysAfterWalletCreationWithNoFee,
+                    bool IsFirstTransferFreeInMonth,
+                    decimal FixedFee,
+                    int PercentageFee,
+                    decimal FeeLimit
+                    );
     }
 }

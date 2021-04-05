@@ -2,6 +2,7 @@
 using Core.Domain.Entities;
 using Core.Domain.Repositories;
 using Core.Domain.Services.Internal.BankRoutinService.Interface;
+using Core.Domain.Services.Internal.FeeService.Interface;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
@@ -12,18 +13,31 @@ namespace ApplicationServices
     {
         private readonly ICoreUnitOfWork CoreUnitOfWork;
         private readonly IBankRoutingService BankRoutingService;
+        private readonly IFeeService FeeService;
         private readonly decimal MaxDeposit;
         private readonly decimal MaxWithdraw;
+        private readonly int DaysAfterWalletCreationWithNoFee;
+        private readonly bool IsFirstTransferFreeInMonth;
+        private readonly decimal FixedFee;
+        private readonly int PercentageFee;
+        private readonly decimal FeeLimit;
 
         public WalletService(
             ICoreUnitOfWork coreUnitOfWork,
             IBankRoutingService bankRoutingService,
+            IFeeService feeService,
             IConfiguration configuration)
         {
             CoreUnitOfWork = coreUnitOfWork;
             BankRoutingService = bankRoutingService;
+            FeeService = feeService;
             MaxDeposit = decimal.Parse(configuration["MaxDeposit"]);
             MaxWithdraw = decimal.Parse(configuration["MaxWithdraw"]);
+            DaysAfterWalletCreationWithNoFee = Int32.Parse(configuration["DaysAfterWalletCreationWithNoFee"]);
+            IsFirstTransferFreeInMonth = bool.Parse(configuration["IsFirstTransferFreeInMonth"]);
+            FixedFee = decimal.Parse(configuration["FixedFee"]);
+            PercentageFee = Int32.Parse(configuration["PercentageFee"]);
+            FeeLimit = decimal.Parse(configuration["FeeLimit"]);
         }
 
         public async Task<string> CreateWallet(
@@ -168,11 +182,25 @@ namespace ApplicationServices
                 throw new InvalidOperationException($"{nameof(Transfer)} forbidden for blocked wallet");
             }
 
+            decimal transferFee = await FeeService.CalculateTransferFee(
+                sourceWallet, 
+                amount,
+                DaysAfterWalletCreationWithNoFee,
+                IsFirstTransferFreeInMonth,
+                FixedFee,
+                PercentageFee,
+                FeeLimit);
             await CoreUnitOfWork.BeginTransactionAsync();
 
             try
             {
                 sourceWallet.PayOut(amount, TransactionType.TransferPayOut, MaxWithdraw);
+                if(transferFee > 0)
+                {
+                    sourceWallet.PayOut(transferFee, TransactionType.FeePayOut, MaxWithdraw);
+                    await CoreUnitOfWork.WalletRepository.Update(sourceWallet);
+                    await CoreUnitOfWork.SaveChangesAsync();
+                }
                 destinationWallet.PayIn(amount, TransactionType.TransferPayIn, MaxDeposit);
 
                 await CoreUnitOfWork.WalletRepository.Update(sourceWallet);

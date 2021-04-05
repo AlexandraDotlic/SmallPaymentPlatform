@@ -10,20 +10,19 @@ namespace Core.Domain.Services.Internal.FeeService.Implementations
 {
     public class FeeService : IFeeService
     {
-        private readonly int DaysAfterWalletCreationWithNoFee;
-        private readonly bool IsFirstTransferFreeInMonth;
-        private readonly decimal FixedFee;
-        private readonly int PercentageFee;
-        private readonly decimal FeeLimit;
-        public FeeService(IConfiguration configuration)
+        public FeeService()
         {
-            DaysAfterWalletCreationWithNoFee = Int32.Parse(configuration["DaysAfterWalletCreationWithNoFee"]);
-            IsFirstTransferFreeInMonth = bool.Parse(configuration["IsFirstTransferFreeInMonth"]);
-            FixedFee = decimal.Parse(configuration["FixedFee"]);
-            PercentageFee = Int32.Parse(configuration["PercentageFee"]);
-            FeeLimit = decimal.Parse(configuration["FeeLimit"]);
+            
         }
-        public async Task<decimal> CalculateTransferFee(Wallet wallet, decimal transferAmount)
+        public async Task<decimal> CalculateTransferFee(
+            Wallet wallet, 
+            decimal transferAmount, 
+            int DaysAfterWalletCreationWithNoFee,
+            bool IsFirstTransferFreeInMonth,
+            decimal FixedFee,
+            int PercentageFee,
+            decimal FeeLimit
+            )
         {
             if (wallet.WalletCreationTime.Date.AddDays(DaysAfterWalletCreationWithNoFee) > DateTime.Now.Date)
             {
