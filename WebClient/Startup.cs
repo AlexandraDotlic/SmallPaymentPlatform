@@ -1,6 +1,8 @@
 using ApplicationServices;
 using Core.Domain.Repositories;
 using Core.Domain.Services.External.BankService;
+using Core.Domain.Services.Internal.BankRoutinService.Implementations;
+using Core.Domain.Services.Internal.BankRoutinService.Interface;
 using Core.Infrastructure.DataAccess.EfCoreDataAccess;
 using EfCoreDataAccess;
 using Microsoft.AspNetCore.Builder;
@@ -38,7 +40,8 @@ namespace WebClient
             });
             services.AddScoped<ICoreUnitOfWork, EfCoreUnitOfWork>();
             services.AddScoped<WalletService>();
-            services.AddScoped<IBankService, BankService>();
+            services.AddScoped<IFirstBankService, FirstBankService>();
+            services.AddScoped<IBankRoutingService, BankRoutingService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

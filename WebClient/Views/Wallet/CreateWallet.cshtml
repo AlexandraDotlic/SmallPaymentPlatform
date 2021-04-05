@@ -2,58 +2,76 @@
 @using Core.Domain.Entities;
 
 
-<hr />
-<h1>Create wallet</h1>
-@if (Model?.PASS != null)
-{
-    <h2> Your password is: <input disabled="disabled" value="@Model.PASS" class="col-md-2"></h2>
-}
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="CreateWallet">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="JMBG" class="control-label">JMBG: </label>
-                <input asp-for="JMBG" class="form-control" />
-                <span asp-validation-for="JMBG" class="text-danger"></span>
+<div class="container">
+    <h1>Create wallet</h1>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="CreateWallet">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="JMBG" class="control-label">JMBG: </label>
+                    <input asp-for="JMBG" class="form-control" />
+                    <span asp-validation-for="JMBG" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="FirstName" class="control-label">First name: </label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LastName" class="control-label">Last name: </label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="BankType" class="control-label">Bank:</label>
+                    <select asp-for="BankType" class="form-control" asp-items="Html.GetEnumSelectList<BankType>().Where(type => type.Value != 0.ToString())">
+                        <option selected>Please select</option>
+                    </select>
+                    <span asp-validation-for="BankType" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="BankAccountNumber" class="control-label">Bank account number:</label>
+                    <input asp-for="BankAccountNumber" class="form-control" />
+                    <span asp-validation-for="BankAccountNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="BankPIN" class="control-label">Bank PIN: </label>
+                    <input type="password" class="form-control" asp-for="BankPIN" />
+                    <span asp-validation-for="BankPIN" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="form-group">
-                <label asp-for="FirstName" class="control-label">First name: </label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
+            <div class="modal-body" id="modalContent">
             </div>
-            <div class="form-group">
-                <label asp-for="LastName" class="control-label">Last name: </label>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BankType" class="control-label">Bank:</label>
-                <select asp-for="BankType" class="form-control" asp-items="Html.GetEnumSelectList<BankType>().Where(type => type.Value != 0.ToString())">
-                    <option selected>Please select</option>
-                </select>
-                <span asp-validation-for="BankType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BankAccountNumber" class="control-label">Bank account number:</label>
-                <input asp-for="BankAccountNumber" class="form-control" />
-                <span asp-validation-for="BankAccountNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BankPIN" class="control-label">Bank PIN: </label>
-                <input type="password" class="form-control" asp-for="BankPIN" />
-                <span asp-validation-for="BankPIN" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
-}
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+        <script src="~/js/helper.js"></script>
+        @if (ViewData["Success"] != null)
+        {
+            <script type="text/javascript">ShowMessage('@ViewData["Success"].ToString()', 'Wallet succesfully created. Password: @ViewData["WalletPASS"].ToString().', '@(ViewData["ErrorMessage"] == null ? "" : ViewData["ErrorMessage"])');</script>
+        }
+    }

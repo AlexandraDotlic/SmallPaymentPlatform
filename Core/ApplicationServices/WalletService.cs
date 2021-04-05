@@ -1,7 +1,8 @@
 ﻿using Common.Utils;
 using Core.Domain.Entities;
 using Core.Domain.Repositories;
-using Core.Domain.Services.External.BankService;
+using Core.Domain.Services.Internal.BankRoutinService.Interface;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 
@@ -10,14 +11,17 @@ namespace ApplicationServices
     public class WalletService
     {
         private readonly ICoreUnitOfWork CoreUnitOfWork;
-        private readonly IBankService BankService;
+        private readonly IBankRoutingService BankRoutingService;
+        private readonly decimal MaxDeposit;
 
         public WalletService(
             ICoreUnitOfWork coreUnitOfWork,
-            IBankService bankService)
+            IBankRoutingService bankRoutingService,
+            IConfiguration configuration)
         {
             CoreUnitOfWork = coreUnitOfWork;
-            BankService = bankService;
+            BankRoutingService = bankRoutingService;
+            MaxDeposit = decimal.Parse(configuration["MaxDeposit"]);
         }
 
         public async Task<string> CreateWallet(
@@ -30,9 +34,9 @@ namespace ApplicationServices
             )
         {
             //provera ka servisu banke da li uopste moze da se kreira wallet
-            bool doesBankAccountExist = await BankService.CheckStatus(jmbg, bankPIN);
+            var response = await BankRoutingService.CheckStatus(jmbg, bankPIN, (BankType)bankType);
 
-            if (!doesBankAccountExist)
+            if (!response.IsSuccess)
             {
                 throw new InvalidOperationException($"Creating wallet for JMBG= {jmbg} and PIN= {bankPIN} not allowed");
             }
@@ -49,5 +53,46 @@ namespace ApplicationServices
 
             return wallet.PASS;
         }
+        public async Task Deposit(string jmbg, string pass, decimal amount)
+        {
+            if (amount < 0)
+            {
+                throw new InvalidOperationException("Amount must be greater than 0");
+            }
+            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(
+                w => w.JMBG == jmbg && w.PASS == pass,
+                w => w.Transactions
+                );
+            if (wallet == null)
+            {
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} and password = {pass} doesn't exist");
+            }
+            if (wallet.IsBlocked)
+            {
+                throw new InvalidOperationException($"{nameof(Deposit)} forbidden for blocked wallet");
+            }
+            await CoreUnitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                wallet.PayIn(amount, TransactionType.Deposit, MaxDeposit);
+                await CoreUnitOfWork.WalletRepository.Update(wallet);
+                await CoreUnitOfWork.SaveChangesAsync();
+                var withdrawResponse = await BankRoutingService.Withdraw(jmbg, wallet.BankPIN, amount, wallet.Bank);
+                if (!withdrawResponse.IsSuccess)
+                {
+                    throw new InvalidOperationException(withdrawResponse.ErrorMessage);
+                }
+
+                await CoreUnitOfWork.CommitTransactionAsync();
+            }
+            catch (InvalidOperationException ex)
+            {
+                await CoreUnitOfWork.RollbackTransactionAsync();
+                throw ex;
+            }
+
+        }
+
     }
 }

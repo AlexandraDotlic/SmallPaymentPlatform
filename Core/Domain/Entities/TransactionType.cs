@@ -7,5 +7,6 @@ namespace Core.Domain.Entities
     public enum TransactionType: short
     {
         Undefined = 0,
+        Deposit = 1,
     }
 }

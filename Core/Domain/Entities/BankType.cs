@@ -7,6 +7,6 @@ namespace Core.Domain.Entities
     public enum BankType: short
     {
         Undefined = 0,
-        ErsteBank = 1
+        FirstBank = 1
     }
 }
