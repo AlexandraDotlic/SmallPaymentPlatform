@@ -21,6 +21,7 @@ namespace ApplicationServices
         private readonly decimal FixedFee;
         private readonly int PercentageFee;
         private readonly decimal FeeLimit;
+        private readonly string AdminPASS;
 
         public WalletService(
             ICoreUnitOfWork coreUnitOfWork,
@@ -38,6 +39,7 @@ namespace ApplicationServices
             FixedFee = decimal.Parse(configuration["FixedFee"]);
             PercentageFee = Int32.Parse(configuration["PercentageFee"]);
             FeeLimit = decimal.Parse(configuration["FeeLimit"]);
+            AdminPASS = configuration["AdminPASS"];
         }
 
         public async Task<string> CreateWallet(
@@ -242,6 +244,40 @@ namespace ApplicationServices
             return fee;
         }
 
+        public async Task BlockWallet(string jmbg, string adminPass)
+        {
+            if(adminPass != AdminPASS)
+            {
+                throw new ArgumentException($"Operation {nameof(BlockWallet)}  is forbidden: Invalid AdminPASS");
+            }
+            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
+            if (wallet == null)
+            {
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} doesn't exist");
+            }
+
+            wallet.Block();
+            await CoreUnitOfWork.WalletRepository.Update(wallet);
+            await CoreUnitOfWork.SaveChangesAsync();
+ 
+        }
+        public async Task UnblockWallet(string jmbg, string adminPass)
+        {
+            if (adminPass != AdminPASS)
+            {
+                throw new ArgumentException($"Operation {nameof(UnblockWallet)} is forbidden: Invalid AdminPASS");
+            }
+            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
+            if (wallet == null)
+            {
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} doesn't exist");
+            }
+
+            wallet.Unblock();
+            await CoreUnitOfWork.WalletRepository.Update(wallet);
+            await CoreUnitOfWork.SaveChangesAsync();
+
+        }
 
     }
 }

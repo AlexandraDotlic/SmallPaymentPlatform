@@ -99,6 +99,15 @@ namespace Core.Domain.Entities
             }
         }
 
+        public void Block()
+        {
+            IsBlocked = true;
+        }
+
+        public void Unblock()
+        {
+            IsBlocked = false;
+        }
 
     }
 }
