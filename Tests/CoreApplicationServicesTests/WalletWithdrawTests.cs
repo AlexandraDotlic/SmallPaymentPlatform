@@ -125,7 +125,7 @@ namespace Tests.CoreApplicationServicesTests
         {
             try
             {
-                string jmbg = "2904992785072";
+                string jmbg = "2904992785075";
                 string pass = "abcdef";
                 //Arrange
                 var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
@@ -158,6 +158,28 @@ namespace Tests.CoreApplicationServicesTests
                 Assert.Fail("Unexpected error: " + ex.Message);
             }
 
+        }
+
+        [TestMethod]
+        public async Task FailWalletWithdrawTest4()
+        {
+            try
+            {
+                string jmbg = "2904992785075";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+                string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
+                await walletService.Deposit(jmbg, password, 1000m);
+                Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
+                wallet.Block();
+                //Act
+                //Assert
+                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Withdraw(jmbg, password, 1000m), $"Forbidden withdraw on blocked wallet.");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
         }
 
     }

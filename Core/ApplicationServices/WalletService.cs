@@ -168,7 +168,7 @@ namespace ApplicationServices
             }
             if (sourceWallet.IsBlocked)
             {
-                throw new InvalidOperationException($"{nameof(Deposit)} forbidden for blocked wallet");
+                throw new InvalidOperationException($"{nameof(Transfer)} from blocked wallet #{sourceWallet.JMBG} is forbidden");
             }
 
             Wallet destinationWallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(
@@ -181,7 +181,7 @@ namespace ApplicationServices
             }
             if (destinationWallet.IsBlocked)
             {
-                throw new InvalidOperationException($"{nameof(Transfer)} forbidden for blocked wallet");
+                throw new InvalidOperationException($"{nameof(Transfer)} to blocked wallet #{destinationWallet.JMBG} is forbidden");
             }
 
             decimal transferFee = await FeeService.CalculateTransferFee(
