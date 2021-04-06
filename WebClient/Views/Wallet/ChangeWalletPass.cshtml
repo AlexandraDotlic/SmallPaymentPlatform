@@ -1,0 +1,57 @@
+﻿@model ChangeWalletPassVM
+
+<div class="container">
+    <h1>Change Wallet password</h1>
+
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="ChangeWalletPass" asp-controller="Wallet" method="post">
+                <div class="form-group">
+                    <label class="control-label" asp-for="JMBG">Jmbg:</label>
+                    <input class="form-control" asp-for="JMBG" />
+                    <span asp-validation-for="JMBG" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" asp-for="OldPASS">Old password:</label>
+                    <input type="password" class="form-control" asp-for="OldPASS" autocomplete="off" />
+                    <span asp-validation-for="OldPASS" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" asp-for="NewPASS">New password:</label>
+                    <input type="password" class="form-control" asp-for="NewPASS" autocomplete="off" />
+                    <span asp-validation-for="NewPASS" class="text-danger"></span>
+                </div>
+
+                <input type="submit" value="Confirm" class="btn btn-primary" />
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalContent">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/helper.js"></script>
+    @if (ViewData["Success"] != null)
+    {
+        <script type="text/javascript">ShowMessage('@ViewData["Success"].ToString()', '@(ViewData["SuccessMessage"]== null ? "" :ViewData["SuccessMessage"].ToString())', '@(ViewData["ErrorMessage"] == null ? "" : ViewData["ErrorMessage"])');</script>
+    }
+}
