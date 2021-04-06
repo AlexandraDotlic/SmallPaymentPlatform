@@ -234,5 +234,54 @@ namespace Tests.CoreApplicationServicesTests
             }
 
         }
+
+        [TestMethod]
+        public async Task FailWalletTransferTest4()
+        {
+            try
+            {
+                string jmbg1 = "2904992785075";
+                string jmbg2 = "2904990785034";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+                string password1 = await walletService.CreateWallet(jmbg1, "TestIme1", "TestPrezime1", (short)BankType.FirstBank, "360123456789999874", "1234");
+                string password2 = await walletService.CreateWallet(jmbg2, "TestIme2", "TestPrezime2", (short)BankType.FirstBank, "360123456789999889", "1224");
+                await walletService.Deposit(jmbg1, password1, 2000m);
+                Wallet wallet1 = await CoreUnitOfWork.WalletRepository.GetById(jmbg1);
+                wallet1.Block();
+
+                //Assert
+                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Transfer(jmbg1, password1, 2000000m, jmbg2), $"Forbidden transfer from blocked wallet #{jmbg1}");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
+
+        }
+        [TestMethod]
+        public async Task FailWalletTransferTest5()
+        {
+            try
+            {
+                string jmbg1 = "2904992785075";
+                string jmbg2 = "2904990785034";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+                string password1 = await walletService.CreateWallet(jmbg1, "TestIme1", "TestPrezime1", (short)BankType.FirstBank, "360123456789999874", "1234");
+                string password2 = await walletService.CreateWallet(jmbg2, "TestIme2", "TestPrezime2", (short)BankType.FirstBank, "360123456789999889", "1224");
+                await walletService.Deposit(jmbg1, password1, 2000m);
+                Wallet wallet2 = await CoreUnitOfWork.WalletRepository.GetById(jmbg2);
+                wallet2.Block();
+
+                //Assert
+                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Transfer(jmbg1, password1, 2000000m, jmbg2), $"Forbidden transfer to blocked wallet #{jmbg2}");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
+
+        }
     }
 }

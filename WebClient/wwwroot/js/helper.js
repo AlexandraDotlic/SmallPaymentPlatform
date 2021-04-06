@@ -8,7 +8,7 @@
     }
     if (successStatus == "False") {
         $(document).ready(function () {
-            $('#modalTitle').html("<p class=\"text-danger\">Fail</p>");
+            $('#modalTitle').html("<p class=\"text-danger\">Error</p>");
             $('#modalContent').html(errorMessage);
             $('#modalCenter').modal('show');
         });

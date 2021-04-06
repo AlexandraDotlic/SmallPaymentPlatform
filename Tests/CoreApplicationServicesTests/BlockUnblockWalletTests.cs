@@ -12,13 +12,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MockBankService;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Tests.CoreApplicationServicesTests
 {
     [TestClass]
-    public class WalletWithdrawTests
+    public class BlockUnblockWalletTests
     {
         private ICoreUnitOfWork CoreUnitOfWork;
         private EfCoreDbContext DbContext;
@@ -43,7 +43,9 @@ namespace Tests.CoreApplicationServicesTests
                 { "IsFirstTransferFreeInMonth", "True" },
                 { "FixedFee","100" },
                 { "FeeLimit", "10000" },
-                { "PercentageFee", "1" }
+                { "PercentageFee", "1" },
+                {"AdminPASS", "admin!" },
+
             };
 
             Configuration = new ConfigurationBuilder()
@@ -69,8 +71,9 @@ namespace Tests.CoreApplicationServicesTests
             DbContext = null;
         }
 
+
         [TestMethod]
-        public async Task SuccessWalletWithdrawTest()
+        public async Task SuccessBlockWalletTest()
         {
 
             try
@@ -79,18 +82,14 @@ namespace Tests.CoreApplicationServicesTests
                 //Arrange
                 var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
                 string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
-                await walletService.Deposit(jmbg, password, 2000m);
-                //Act
 
-                await walletService.Withdraw(jmbg, password, 1000m);
+                //Act
+                await walletService.BlockWallet(jmbg, Configuration["AdminPASS"]);
 
                 //Assert
                 Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
 
-                Assert.AreEqual(1000m, wallet.Balance, "Balance must be 1000");
-                Assert.AreNotEqual(0, wallet.Transactions.Count(), "Transaction count must be different than 0");
-                Assert.AreEqual(TransactionType.Withdraw, wallet.Transactions.FirstOrDefault(transaction => transaction.Type == TransactionType.Withdraw).Type);
-                Assert.AreEqual(1000m, wallet.Transactions.FirstOrDefault(transaction => transaction.Type == TransactionType.Withdraw).Amount, $"Transaction amount must be 10000.");
+                Assert.AreEqual(true, wallet.IsBlocked, "Wallet must be blocked");
 
             }
             catch (Exception ex)
@@ -100,8 +99,9 @@ namespace Tests.CoreApplicationServicesTests
         }
 
         [TestMethod]
-        public async Task FailWalletWithdrawTest1()
+        public async Task FailBlockWalletTest1()
         {
+
             try
             {
                 string jmbg = "2904992785075";
@@ -109,30 +109,58 @@ namespace Tests.CoreApplicationServicesTests
                 var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
                 string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
 
+                //Act
+                
+
                 //Assert
-                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Withdraw(jmbg, password, 2000000m), $"Exceeded monthly withdraw limit ({Configuration["MaxDeposit"]} RSD).");
+                await Assert.ThrowsExceptionAsync<ArgumentException>(async () => await walletService.BlockWallet(jmbg, "123456"), $"Invalid admin pass");
+
             }
             catch (Exception ex)
             {
                 Assert.Fail("Unexpected error: " + ex.Message);
             }
-
         }
 
-
         [TestMethod]
-        public async Task FailWalletWithdrawTest2()
+        public async Task FailBlockWalletTest2()
         {
+
             try
             {
                 string jmbg = "2904992785075";
-                string pass = "abcdef";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+                string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
+
+                //Act
+
+
+                //Assert
+                await Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await walletService.BlockWallet(jmbg, null), $"Invalid admin pass");
+
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
+        }
+        [TestMethod]
+        public async Task FailBlockWalletTest3()
+        {
+
+            try
+            {
+                string jmbg = "2904992785075";
                 //Arrange
                 var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
 
                 //Act
+
+
                 //Assert
-                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Withdraw(jmbg, pass, 1000m), $"Wallet doesn't exist");
+                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.BlockWallet(jmbg, Configuration["AdminPASS"]), $"Wallet doesn't exist");
+
             }
             catch (Exception ex)
             {
@@ -141,40 +169,24 @@ namespace Tests.CoreApplicationServicesTests
         }
 
         [TestMethod]
-        public async Task FailWalletWithdrawTest3()
+        public async Task SuccessUnblockWalletTest()
         {
+
             try
             {
                 string jmbg = "2904992785075";
                 //Arrange
                 var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
                 string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
+                await walletService.BlockWallet(jmbg, Configuration["AdminPASS"]);
+                //Act
+                await walletService.UnblockWallet(jmbg, Configuration["AdminPASS"]);
 
                 //Assert
-                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Withdraw(jmbg, password, 1000m), $"Not enough funds on wallet.");
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail("Unexpected error: " + ex.Message);
-            }
-
-        }
-
-        [TestMethod]
-        public async Task FailWalletWithdrawTest4()
-        {
-            try
-            {
-                string jmbg = "2904992785075";
-                //Arrange
-                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
-                string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
-                await walletService.Deposit(jmbg, password, 1000m);
                 Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
-                wallet.Block();
-                //Act
-                //Assert
-                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.Withdraw(jmbg, password, 1000m), $"Forbidden withdraw on blocked wallet.");
+
+                Assert.AreEqual(false, wallet.IsBlocked, "Wallet must not be blocked");
+
             }
             catch (Exception ex)
             {
@@ -182,5 +194,74 @@ namespace Tests.CoreApplicationServicesTests
             }
         }
 
+        [TestMethod]
+        public async Task FailUnblockWalletTest()
+        {
+
+            try
+            {
+                string jmbg = "2904992785075";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+                string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
+
+                //Act
+
+
+                //Assert
+                await Assert.ThrowsExceptionAsync<ArgumentException>(async () => await walletService.BlockWallet(jmbg, "123456"), $"Invalid admin pass");
+
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
+        }
+
+        [TestMethod]
+        public async Task FailUnblockWalletTest2()
+        {
+
+            try
+            {
+                string jmbg = "2904992785075";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+                string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
+
+                //Act
+
+
+                //Assert
+                await Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await walletService.UnblockWallet(jmbg, null), $"Invalid admin pass");
+
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
+        }
+        [TestMethod]
+        public async Task FailUnblockWalletTest3()
+        {
+
+            try
+            {
+                string jmbg = "2904992785075";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+
+                //Act
+
+
+                //Assert
+                await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.UnblockWallet(jmbg, Configuration["AdminPASS"]), $"Wallet doesn't exist");
+
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
+        }
     }
 }

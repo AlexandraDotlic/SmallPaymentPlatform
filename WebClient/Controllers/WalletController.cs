@@ -126,5 +126,43 @@ namespace WebClient.Controllers
                 return BadRequest(new { errorMessage = ex.Message });
             }
         }
+
+        [HttpGet]
+        public IActionResult ManageWallet()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ManageWallet(WalletManagementVM walletManagementVM)
+        {
+            try
+            {
+                if(walletManagementVM.Action == "Block")
+                {
+                    await WalletService.BlockWallet(walletManagementVM.WalletJMBG, walletManagementVM.AdminPASS);
+                    ModelState.Clear();
+                    ViewData["SuccessMessage"] = "Wallet successfully blocked.";
+                    ViewData["Success"] = "True";
+                    return View();
+
+                }
+                else
+                {
+                    await WalletService.UnblockWallet(walletManagementVM.WalletJMBG, walletManagementVM.AdminPASS);
+                    ModelState.Clear();
+                    ViewData["SuccessMessage"] = "Wallet successfully unblocked.";
+                    ViewData["Success"] = "True";
+                    return View();
+                }
+             
+            }
+            catch (Exception ex)
+            {
+                ViewData["ErrorMessage"] = ex.Message;
+                ViewData["Success"] = "False";
+                return View();
+            }
+        }
     }
 }

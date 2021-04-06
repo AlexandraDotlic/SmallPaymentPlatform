@@ -21,6 +21,7 @@ namespace ApplicationServices
         private readonly decimal FixedFee;
         private readonly int PercentageFee;
         private readonly decimal FeeLimit;
+        private readonly string AdminPASS;
 
         public WalletService(
             ICoreUnitOfWork coreUnitOfWork,
@@ -38,6 +39,7 @@ namespace ApplicationServices
             FixedFee = decimal.Parse(configuration["FixedFee"]);
             PercentageFee = Int32.Parse(configuration["PercentageFee"]);
             FeeLimit = decimal.Parse(configuration["FeeLimit"]);
+            AdminPASS = configuration["AdminPASS"];
         }
 
         public async Task<string> CreateWallet(
@@ -166,7 +168,7 @@ namespace ApplicationServices
             }
             if (sourceWallet.IsBlocked)
             {
-                throw new InvalidOperationException($"{nameof(Deposit)} forbidden for blocked wallet");
+                throw new InvalidOperationException($"{nameof(Transfer)} from blocked wallet #{sourceWallet.JMBG} is forbidden");
             }
 
             Wallet destinationWallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(
@@ -179,7 +181,7 @@ namespace ApplicationServices
             }
             if (destinationWallet.IsBlocked)
             {
-                throw new InvalidOperationException($"{nameof(Transfer)} forbidden for blocked wallet");
+                throw new InvalidOperationException($"{nameof(Transfer)} to blocked wallet #{destinationWallet.JMBG} is forbidden");
             }
 
             decimal transferFee = await FeeService.CalculateTransferFee(
@@ -242,6 +244,56 @@ namespace ApplicationServices
             return fee;
         }
 
+        public async Task BlockWallet(string jmbg, string adminPass)
+        {
+            if (string.IsNullOrEmpty(jmbg))
+            {
+                throw new ArgumentNullException($"{nameof(jmbg)}");
+            }
+            if (string.IsNullOrEmpty(adminPass))
+            {
+                throw new ArgumentNullException($"{nameof(adminPass)}");
+            }
+            if (adminPass != AdminPASS)
+            {
+                throw new ArgumentException($"Operation {nameof(BlockWallet)}  is forbidden: Invalid AdminPASS");
+            }
+            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
+            if (wallet == null)
+            {
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} doesn't exist");
+            }
+
+            wallet.Block();
+            await CoreUnitOfWork.WalletRepository.Update(wallet);
+            await CoreUnitOfWork.SaveChangesAsync();
+ 
+        }
+        public async Task UnblockWallet(string jmbg, string adminPass)
+        {
+            if (string.IsNullOrEmpty(jmbg))
+            {
+                throw new ArgumentNullException($"{nameof(jmbg)}");
+            }
+            if (string.IsNullOrEmpty(adminPass))
+            {
+                throw new ArgumentNullException($"{nameof(adminPass)}");
+            }
+            if (adminPass != AdminPASS)
+            {
+                throw new ArgumentException($"Operation {nameof(UnblockWallet)} is forbidden: Invalid AdminPASS");
+            }
+            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
+            if (wallet == null)
+            {
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} doesn't exist");
+            }
+
+            wallet.Unblock();
+            await CoreUnitOfWork.WalletRepository.Update(wallet);
+            await CoreUnitOfWork.SaveChangesAsync();
+
+        }
 
     }
 }
