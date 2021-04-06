@@ -312,5 +312,39 @@ namespace ApplicationServices
 
         }
 
+        public async Task ChangePass(string jmbg, string oldPass, string newPass)
+        {
+            if (string.IsNullOrEmpty(jmbg))
+            {
+                throw new ArgumentNullException($"{nameof(jmbg)}");
+            }
+            if (string.IsNullOrEmpty(oldPass))
+            {
+                throw new ArgumentNullException($"{nameof(oldPass)}");
+            }
+            if (string.IsNullOrEmpty(newPass))
+            {
+                throw new ArgumentNullException($"{nameof(newPass)}");
+            }
+            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
+            if (wallet == null)
+            {
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} doesn't exist");
+            }
+            if (!wallet.IsPassValid(oldPass))
+            {
+                throw new InvalidOperationException($"Invalid password.");
+            }
+            if(newPass.Length != 6)
+            {
+                throw new InvalidOperationException($"Password must be 6 characters long");
+
+            }
+            wallet.ChangePass(newPass);
+            await CoreUnitOfWork.WalletRepository.Update(wallet);
+            await CoreUnitOfWork.SaveChangesAsync();
+
+        }
+
     }
 }

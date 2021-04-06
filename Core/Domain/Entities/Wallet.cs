@@ -53,6 +53,11 @@ namespace Core.Domain.Entities
             return PASS == inputPass;
         }
 
+        public void ChangePass(string newPass)
+        {
+            PASS = newPass;
+        }
+
         public void PayIn(decimal amount, TransactionType transactionType, decimal maxDeposit)
         {
             if (UsedDepositForCurrentMonth + amount > maxDeposit)
