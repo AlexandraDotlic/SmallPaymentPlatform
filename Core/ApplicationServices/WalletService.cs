@@ -246,7 +246,15 @@ namespace ApplicationServices
 
         public async Task BlockWallet(string jmbg, string adminPass)
         {
-            if(adminPass != AdminPASS)
+            if (string.IsNullOrEmpty(jmbg))
+            {
+                throw new ArgumentNullException($"{nameof(jmbg)}");
+            }
+            if (string.IsNullOrEmpty(adminPass))
+            {
+                throw new ArgumentNullException($"{nameof(adminPass)}");
+            }
+            if (adminPass != AdminPASS)
             {
                 throw new ArgumentException($"Operation {nameof(BlockWallet)}  is forbidden: Invalid AdminPASS");
             }
@@ -263,6 +271,14 @@ namespace ApplicationServices
         }
         public async Task UnblockWallet(string jmbg, string adminPass)
         {
+            if (string.IsNullOrEmpty(jmbg))
+            {
+                throw new ArgumentNullException($"{nameof(jmbg)}");
+            }
+            if (string.IsNullOrEmpty(adminPass))
+            {
+                throw new ArgumentNullException($"{nameof(adminPass)}");
+            }
             if (adminPass != AdminPASS)
             {
                 throw new ArgumentException($"Operation {nameof(UnblockWallet)} is forbidden: Invalid AdminPASS");
