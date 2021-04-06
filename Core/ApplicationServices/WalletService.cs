@@ -64,12 +64,13 @@ namespace ApplicationServices
                 throw new InvalidOperationException($"Creating wallet for JMBG= {jmbg} and PIN= {bankPIN} not allowed because person is under 18");
 
             }
+            string pass = Guid.NewGuid().ToString().Substring(0, 6);
 
-            Wallet wallet = new Wallet(jmbg, firstName, lastName, (BankType)bankType, bankAccountNumber, bankPIN);
+            Wallet wallet = new Wallet(jmbg, firstName, lastName, (BankType)bankType, bankAccountNumber, bankPIN, pass);
             await CoreUnitOfWork.WalletRepository.Insert(wallet);
             await CoreUnitOfWork.SaveChangesAsync();
 
-            return wallet.PASS;
+            return pass;
         }
         public async Task Deposit(string jmbg, string pass, decimal amount)
         {
@@ -78,12 +79,16 @@ namespace ApplicationServices
                 throw new InvalidOperationException("Amount must be greater than 0");
             }
             Wallet wallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(
-                w => w.JMBG == jmbg && w.PASS == pass,
+                w => w.JMBG == jmbg,
                 w => w.Transactions
                 );
             if (wallet == null)
             {
-                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} and password = {pass} doesn't exist");
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} doesn't exist");
+            }
+            if (!wallet.IsPassValid(pass))
+            {
+                throw new InvalidOperationException($"Invalid password.");
             }
             if (wallet.IsBlocked)
             {
@@ -118,12 +123,16 @@ namespace ApplicationServices
                 throw new InvalidOperationException("Amount must be greater than 0");
             }
             Wallet wallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(
-                w => w.JMBG == jmbg && w.PASS == pass,
-                w => w.Transactions
-                );
+              w => w.JMBG == jmbg,
+              w => w.Transactions
+              );
             if (wallet == null)
             {
-                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} and password = {pass} doesn't exist");
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} doesn't exist");
+            }
+            if (!wallet.IsPassValid(pass))
+            {
+                throw new InvalidOperationException($"Invalid password.");
             }
             if (wallet.IsBlocked)
             {
@@ -159,12 +168,16 @@ namespace ApplicationServices
                 throw new InvalidOperationException("Amount must be greater than 0");
             }
             Wallet sourceWallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(
-                w => w.JMBG == sourceWalletJmbg && w.PASS == sourceWalletPass,
-                w => w.Transactions
-                );
+              w => w.JMBG == sourceWalletJmbg,
+              w => w.Transactions
+              );
             if (sourceWallet == null)
             {
-                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {sourceWalletJmbg} and password = {sourceWalletPass} doesn't exist");
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {sourceWallet} doesn't exist");
+            }
+            if (!sourceWallet.IsPassValid(sourceWalletPass))
+            {
+                throw new InvalidOperationException($"Invalid password.");
             }
             if (sourceWallet.IsBlocked)
             {
@@ -228,12 +241,16 @@ namespace ApplicationServices
                 throw new InvalidOperationException("Amount must be greater than 0");
             }
             Wallet wallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(
-                w => w.JMBG == jmbg && w.PASS == pass,
-                w => w.Transactions
-                );
+              w => w.JMBG == jmbg,
+              w => w.Transactions
+              );
             if (wallet == null)
             {
-                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} and password = {pass} doesn't exist");
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} doesn't exist");
+            }
+            if (!wallet.IsPassValid(pass))
+            {
+                throw new InvalidOperationException($"Invalid password.");
             }
             if (wallet.IsBlocked)
             {
@@ -290,6 +307,40 @@ namespace ApplicationServices
             }
 
             wallet.Unblock();
+            await CoreUnitOfWork.WalletRepository.Update(wallet);
+            await CoreUnitOfWork.SaveChangesAsync();
+
+        }
+
+        public async Task ChangePass(string jmbg, string oldPass, string newPass)
+        {
+            if (string.IsNullOrEmpty(jmbg))
+            {
+                throw new ArgumentNullException($"{nameof(jmbg)}");
+            }
+            if (string.IsNullOrEmpty(oldPass))
+            {
+                throw new ArgumentNullException($"{nameof(oldPass)}");
+            }
+            if (string.IsNullOrEmpty(newPass))
+            {
+                throw new ArgumentNullException($"{nameof(newPass)}");
+            }
+            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
+            if (wallet == null)
+            {
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} doesn't exist");
+            }
+            if (!wallet.IsPassValid(oldPass))
+            {
+                throw new InvalidOperationException($"Invalid password.");
+            }
+            if(newPass.Length != 6)
+            {
+                throw new InvalidOperationException($"Password must be 6 characters long");
+
+            }
+            wallet.ChangePass(newPass);
             await CoreUnitOfWork.WalletRepository.Update(wallet);
             await CoreUnitOfWork.SaveChangesAsync();
 

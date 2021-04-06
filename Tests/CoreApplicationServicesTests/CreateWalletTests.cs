@@ -67,7 +67,7 @@ namespace Tests.CoreApplicationServicesTests
 
             string walletPass = await walletService.CreateWallet("1203977780011", "Pera", "Peric", 1, "360123456", "1234");
 
-            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(w => w.PASS == walletPass);
+            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById("1203977780011");
 
             Assert.AreEqual(walletPass.Length, 6);
             Assert.AreNotEqual(null, wallet, "Wallet can't be null");
@@ -77,7 +77,7 @@ namespace Tests.CoreApplicationServicesTests
             Assert.AreEqual(1, (short)wallet.Bank);
             Assert.AreEqual("360123456", wallet.BankAccountNumber);
             Assert.AreEqual("1234", wallet.BankPIN);
-            Assert.AreEqual(walletPass, wallet.PASS);
+            Assert.AreEqual(true, wallet.IsPassValid(walletPass));
 
 
 

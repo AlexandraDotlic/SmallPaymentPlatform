@@ -14,13 +14,15 @@ namespace Core.Domain.Entities
         public string BankPIN { get; private set; }
         public decimal Balance { get; private set; }
         public ICollection<Transaction> Transactions { get; private set; }
-        public string PASS { get; private set; }
         public DateTime LastTransactionDateTime { get; private set; }
         public decimal UsedDepositForCurrentMonth { get; private set; }
         public decimal UsedWithdrawalForCurrentMonth { get; private set; }
         public bool IsBlocked { get; private set; }
         public DateTime WalletCreationTime { get; private set; }
         public DateTime LastTransferDateTime { get; private set; }
+
+        private string PASS;
+
         public Wallet()
         {
 
@@ -31,7 +33,8 @@ namespace Core.Domain.Entities
             string lastName,
             BankType bank, 
             string bankAccountNumber, 
-            string bankPIN
+            string bankPIN,
+            string password
             )
         {
             JMBG = jMBG;
@@ -40,10 +43,19 @@ namespace Core.Domain.Entities
             Bank = bank;
             BankAccountNumber = bankAccountNumber;
             BankPIN = bankPIN;
-
+            PASS = password;
             Transactions = new List<Transaction>();
-            PASS = Guid.NewGuid().ToString().Substring(0, 6);
             WalletCreationTime = DateTime.Now;
+        }
+
+        public bool IsPassValid(string inputPass)
+        {
+            return PASS == inputPass;
+        }
+
+        public void ChangePass(string newPass)
+        {
+            PASS = newPass;
         }
 
         public void PayIn(decimal amount, TransactionType transactionType, decimal maxDeposit)

@@ -164,5 +164,30 @@ namespace WebClient.Controllers
                 return View();
             }
         }
+
+        [HttpGet]
+        public IActionResult ChangeWalletPass()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeWalletPass(ChangeWalletPassVM changeWalletPassVM)
+        {
+            try
+            {
+                await WalletService.ChangePass(changeWalletPassVM.JMBG, changeWalletPassVM.OldPASS, changeWalletPassVM.NewPASS);
+                ModelState.Clear();
+                ViewData["SuccessMessage"] = "Wallet password successfully changed.";
+                ViewData["Success"] = "True";
+                return View();
+            }
+            catch (Exception ex)
+            {
+                ViewData["ErrorMessage"] = ex.Message;
+                ViewData["Success"] = "False";
+                return View();
+            }
+        }
     }
 }
