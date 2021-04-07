@@ -1,4 +1,5 @@
 ﻿using ApplicationServices;
+using Core.ApplicationServices.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -181,6 +182,45 @@ namespace WebClient.Controllers
                 ViewData["SuccessMessage"] = "Wallet password successfully changed.";
                 ViewData["Success"] = "True";
                 return View();
+            }
+            catch (Exception ex)
+            {
+                ViewData["ErrorMessage"] = ex.Message;
+                ViewData["Success"] = "False";
+                return View();
+            }
+        }
+
+        [HttpGet]
+        public IActionResult WalletInfo()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> WalletInfo(WalletInfoRequestVM walletInfoRequestVM)
+        {
+            try
+            {
+                WalletInfoDTO walletInfoDTO = await WalletService.GetWalletInfo(walletInfoRequestVM.JMBG, walletInfoRequestVM.PASS);
+
+                var walletInfoResponseVM = new WalletInfoResponseVM(
+                    walletInfoDTO.JMBG,
+                    walletInfoDTO.FirstName,
+                    walletInfoDTO.LastName,
+                    (short)walletInfoDTO.Bank,
+                    walletInfoDTO.BankAccountNumber,
+                    walletInfoDTO.Balance,
+                    walletInfoDTO.IsBlocked,
+                    walletInfoDTO.WalletCreationTime,
+                    walletInfoDTO.MaxDeposit,
+                    walletInfoDTO.UsedDeposit,
+                    walletInfoDTO.MaxWithdraw,
+                    walletInfoDTO.UsedWithdraw);
+                ModelState.Clear();
+                var walletInfoVM = new WalletInfoVM(walletInfoRequestVM, walletInfoResponseVM);
+                ViewData["Success"] = "True";
+                return View(walletInfoVM);
             }
             catch (Exception ex)
             {
