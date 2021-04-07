@@ -13,6 +13,6 @@ namespace WebClient.Models
         public string JMBG { get; set; }
         [Required]
         public string PASS { get; set; }
-        [Required]
     }
+
 }
