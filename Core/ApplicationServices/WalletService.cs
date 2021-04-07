@@ -6,6 +6,8 @@ using Core.Domain.Services.Internal.BankRoutinService.Interface;
 using Core.Domain.Services.Internal.FeeService.Interface;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ApplicationServices
@@ -379,6 +381,32 @@ namespace ApplicationServices
                 wallet.UsedDepositForCurrentMonth,
                 MaxWithdraw,
                 wallet.UsedWithdrawalForCurrentMonth);
+        }
+
+        public async Task<WalletTransactionsDTO> GetWalletTransactionsByDate(string jmbg, string pass, DateTime date)
+        {
+            if (string.IsNullOrEmpty(jmbg))
+            {
+                throw new ArgumentNullException($"{nameof(jmbg)}");
+            }
+            if (string.IsNullOrEmpty(pass))
+            {
+                throw new ArgumentNullException($"{nameof(pass)}");
+            }
+            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(w => w.JMBG == jmbg, w => w.Transactions);
+            if (wallet == null)
+            {
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} doesn't exist");
+            }
+            if (!wallet.IsPassValid(pass))
+            {
+                throw new InvalidOperationException($"Invalid password.");
+            }
+            List<TransactionDTO> transactionDTOs = wallet.Transactions
+                .Select(t => new TransactionDTO(t.Id, t.Amount, t.TransactionDateTime, t.Type))
+                .Where(t => t.TransactionDateTime.Date == date.Date).ToList();
+            return new WalletTransactionsDTO(wallet.JMBG, wallet.Balance, transactionDTOs);
+
         }
 
     }
