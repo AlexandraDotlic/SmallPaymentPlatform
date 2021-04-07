@@ -13,10 +13,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Common\Utils\Common.Utils.csproj" />
     <ProjectReference Include="..\Core\ApplicationServices\Core.ApplicationServices.csproj" />
     <ProjectReference Include="..\Core\Domain\Core.Domain.csproj" />
     <ProjectReference Include="..\Core\Infrastructure\DataAccess\EfCoreDataAccess\Core.Infrastructure.DataAccess.EfCoreDataAccess.csproj" />
-    <ProjectReference Include="..\MockBankService\Core.Infrastructure.Services.MockBankService.csproj" />
+    <ProjectReference Include="..\Core\Infrastructure\Services\MockBankService\Core.Infrastructure.Services.MockBankService.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\js\helper.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
