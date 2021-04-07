@@ -4,14 +4,16 @@ using EfCoreDataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Core.Infrastructure.DataAccess.EfCoreDataAccess.Migrations
 {
     [DbContext(typeof(EfCoreDbContext))]
-    partial class EfCoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210407140155_Added_row_version_to_Wallet")]
+    partial class Added_row_version_to_Wallet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,8 +115,7 @@ namespace Core.Infrastructure.DataAccess.EfCoreDataAccess.Migrations
                 {
                     b.HasOne("Core.Domain.Entities.Wallet", "Wallet")
                         .WithMany("Transactions")
-                        .HasForeignKey("WalletJMBG")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("WalletJMBG");
 
                     b.Navigation("Wallet");
                 });

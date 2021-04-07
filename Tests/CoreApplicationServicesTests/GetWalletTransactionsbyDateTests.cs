@@ -45,7 +45,8 @@ namespace Tests.CoreApplicationServicesTests
                 { "IsFirstTransferFreeInMonth", "True" },
                 { "FixedFee","100" },
                 { "FeeLimit", "10000" },
-                { "PercentageFee", "1" }
+                { "PercentageFee", "1" },
+                {"AdminPASS", "admin!" }
 
             };
 
@@ -83,6 +84,42 @@ namespace Tests.CoreApplicationServicesTests
                 var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
                 string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874","1234");
                 await walletService.Deposit(jmbg, password, 1000m);
+                //Act
+                var walletTransactionsDTO = await walletService.GetWalletTransactionsByDate(jmbg, password, DateTime.Now);
+
+                //Assert
+                Wallet wallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(w => w.JMBG == jmbg,
+                    w => w.Transactions.Where(t => t.TransactionDateTime.Date == DateTime.Now.Date));
+
+                Assert.AreEqual(walletTransactionsDTO.JMBG, wallet.JMBG);
+                Assert.AreEqual(walletTransactionsDTO.Balance, wallet.Balance);
+                Assert.AreEqual(walletTransactionsDTO.Transactions.Count, 1);
+                Assert.AreEqual(walletTransactionsDTO.Transactions.Count, wallet.Transactions.Count);
+                Assert.AreEqual(walletTransactionsDTO.Transactions.First().Type, TransactionType.Deposit);
+                Assert.AreEqual(walletTransactionsDTO.Transactions.First().Amount, 1000m);
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
+        }
+
+        [TestMethod]
+        public async Task SuccessGetWalletTransactionsByDateTest2()
+        {
+
+            try
+            {
+                string jmbg = "2904992785075";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+                string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
+                await walletService.Deposit(jmbg, password, 1000m);
+                await walletService.BlockWallet(jmbg, Configuration["AdminPASS"]);
                 //Act
                 var walletTransactionsDTO = await walletService.GetWalletTransactionsByDate(jmbg, password, DateTime.Now);
 

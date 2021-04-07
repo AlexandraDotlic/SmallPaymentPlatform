@@ -22,6 +22,7 @@ namespace Core.Infrastructure.DataAccess.EfCoreDataAccess.EntityConfigurations
             builder.Property(w => w.Balance).HasPrecision(12, 2);
             builder.Property(w => w.UsedWithdrawalForCurrentMonth).HasPrecision(12, 2);
             builder.Property(w => w.UsedDepositForCurrentMonth).HasPrecision(12, 2);
+            builder.Property(w => w.RowVersion).IsRowVersion();
 
 
         }

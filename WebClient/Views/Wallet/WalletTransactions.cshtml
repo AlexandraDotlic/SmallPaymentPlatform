@@ -3,7 +3,7 @@
 <div class="container">
     <h1>Get wallet transactions</h1>
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <form asp-action="WalletTransactions" asp-controller="Wallet" method="post">
                 <div class="form-group">
                     <label class="control-label" asp-for="WalletTransactionsRequestVM.JMBG">Jmbg:</label>
@@ -41,6 +41,9 @@
             <th>
                 @Html.DisplayName("Transaction type")
             </th>
+            <th>
+                @Html.DisplayName("Transaction date")
+            </th>
         </tr>
 
     
@@ -48,17 +51,20 @@
         {
             @foreach (var item in Model.WalletTransactionsResponseVM.TransactionVMs)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.AmountString)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Type)
-                    </td>
-                </tr>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AmountString)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TransactionDate)
+                </td>
+            </tr>
             }
         }
     </table>
