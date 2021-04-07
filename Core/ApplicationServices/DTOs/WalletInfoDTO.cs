@@ -15,7 +15,11 @@ namespace Core.ApplicationServices.DTOs
             string bankAccountNumber, 
             decimal balance,
             bool isBlocked, 
-            DateTime walletCreationTime)
+            DateTime walletCreationTime,
+            decimal maxDeposit,
+            decimal usedDeposit,
+            decimal maxWithdraw, 
+            decimal usedWithdraw)
         {
             JMBG = jMBG;
             FirstName = firstName;
@@ -25,6 +29,10 @@ namespace Core.ApplicationServices.DTOs
             Balance = balance;
             IsBlocked = isBlocked;
             WalletCreationTime = walletCreationTime;
+            MaxDeposit = maxDeposit;
+            UsedDeposit = usedDeposit;
+            MaxWithdraw = maxWithdraw;
+            UsedWithdraw = usedWithdraw;
         }
 
         public string JMBG { get; set; }
@@ -35,7 +43,9 @@ namespace Core.ApplicationServices.DTOs
         public decimal Balance { get; set; }
         public bool IsBlocked { get; set; }
         public DateTime WalletCreationTime { get; set; }
-
-
+        public decimal MaxDeposit { get; set; }
+        public decimal UsedDeposit { get; set; }
+        public decimal MaxWithdraw { get; set; }
+        public decimal UsedWithdraw { get; set; }
     }
 }

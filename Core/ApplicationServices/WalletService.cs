@@ -374,7 +374,11 @@ namespace ApplicationServices
                 wallet.BankAccountNumber,
                 wallet.Balance,
                 wallet.IsBlocked,
-                wallet.WalletCreationTime);
+                wallet.WalletCreationTime,
+                MaxDeposit,
+                wallet.UsedDepositForCurrentMonth,
+                MaxWithdraw,
+                wallet.UsedWithdrawalForCurrentMonth);
         }
 
     }
