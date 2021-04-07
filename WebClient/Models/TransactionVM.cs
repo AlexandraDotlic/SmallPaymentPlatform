@@ -12,10 +12,12 @@ namespace WebClient.Models
             Id = id;
             Amount = amount;
             Type = type;
+            AmountString = string.Format("{0:n}", Amount);
         }
 
         public int Id { get; set; }
         public decimal Amount { get; set; }
         public string Type { get; set; }
+        public string AmountString { get; set; }
     }
 }

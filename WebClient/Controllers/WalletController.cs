@@ -243,10 +243,8 @@ namespace WebClient.Controllers
             try
             {
                 WalletTransactionsDTO walletTransactionsDTO = await WalletService.GetWalletTransactionsByDate(walletTransactionsRequestVM.JMBG, walletTransactionsRequestVM.PASS, walletTransactionsRequestVM.Date);
-                var transactionsVM = walletTransactionsDTO.Transactions.Select(t => new TransactionVM(t.Id, t.Amount, Enum.GetName(typeof(TransactionType), t.Type)));
+                var transactionsVM = walletTransactionsDTO.Transactions.Select(t => new TransactionVM(t.Id, t.Amount, Enum.GetName(typeof(TransactionType), t.Type))).ToList();
                 var walletTransactionsResponseVM = new WalletTransactionsResponseVM(
-                    walletTransactionsDTO.JMBG,
-                    walletTransactionsDTO.Balance,
                     transactionsVM
                     );
                 ModelState.Clear();
