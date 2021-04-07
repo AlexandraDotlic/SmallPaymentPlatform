@@ -41,6 +41,9 @@
             <th>
                 @Html.DisplayName("Transaction type")
             </th>
+            <th>
+                @Html.DisplayName("Transaction date")
+            </th>
         </tr>
 
     
@@ -48,17 +51,20 @@
         {
             @foreach (var item in Model.WalletTransactionsResponseVM.TransactionVMs)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.AmountString)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Type)
-                    </td>
-                </tr>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AmountString)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TransactionDate)
+                </td>
+            </tr>
             }
         }
     </table>
