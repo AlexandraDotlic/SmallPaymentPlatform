@@ -1,5 +1,6 @@
 ﻿using ApplicationServices;
 using Core.ApplicationServices.DTOs;
+using Core.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -221,6 +222,37 @@ namespace WebClient.Controllers
                 var walletInfoVM = new WalletInfoVM(walletInfoRequestVM, walletInfoResponseVM);
                 ViewData["Success"] = "True";
                 return View(walletInfoVM);
+            }
+            catch (Exception ex)
+            {
+                ViewData["ErrorMessage"] = ex.Message;
+                ViewData["Success"] = "False";
+                return View();
+            }
+        }
+
+        [HttpGet]
+        public IActionResult WalletTransactions()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> WalletTransactions(WalletTransactionsRequestVM walletTransactionsRequestVM)
+        {
+            try
+            {
+                WalletTransactionsDTO walletTransactionsDTO = await WalletService.GetWalletTransactionsByDate(walletTransactionsRequestVM.JMBG, walletTransactionsRequestVM.PASS, walletTransactionsRequestVM.Date);
+                var transactionsVM = walletTransactionsDTO.Transactions.Select(t => new TransactionVM(t.Id, t.Amount, Enum.GetName(typeof(TransactionType), t.Type)));
+                var walletTransactionsResponseVM = new WalletTransactionsResponseVM(
+                    walletTransactionsDTO.JMBG,
+                    walletTransactionsDTO.Balance,
+                    transactionsVM
+                    );
+                ModelState.Clear();
+                var walletTransactionsVM = new WalletTransactionsVM(walletTransactionsRequestVM, walletTransactionsResponseVM);
+                ViewData["Success"] = "True";
+                return View(walletTransactionsVM);
             }
             catch (Exception ex)
             {
