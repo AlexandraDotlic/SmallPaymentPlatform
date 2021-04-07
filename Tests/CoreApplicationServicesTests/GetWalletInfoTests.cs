@@ -45,7 +45,8 @@ namespace Tests.CoreApplicationServicesTests
                 { "IsFirstTransferFreeInMonth", "True" },
                 { "FixedFee","100" },
                 { "FeeLimit", "10000" },
-                { "PercentageFee", "1" }
+                { "PercentageFee", "1" },
+                {"AdminPASS", "admin!" },
 
             };
 
@@ -87,16 +88,14 @@ namespace Tests.CoreApplicationServicesTests
                 var walletInfoDTO = await walletService.GetWalletInfo(jmbg, password);
 
                 //Assert
-                Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
 
-                Assert.AreEqual(walletInfoDTO.JMBG, wallet.JMBG);
-                Assert.AreEqual(walletInfoDTO.FirstName, wallet.FirstName);
-                Assert.AreEqual(walletInfoDTO.LastName, wallet.LastName);
-                Assert.AreEqual(walletInfoDTO.Bank, wallet.Bank);
-                Assert.AreEqual(walletInfoDTO.BankAccountNumber, wallet.BankAccountNumber);
-                Assert.AreEqual(walletInfoDTO.Balance, wallet.Balance);
-                Assert.AreEqual(walletInfoDTO.WalletCreationTime, wallet.WalletCreationTime);
-                Assert.AreEqual(walletInfoDTO.IsBlocked, wallet.IsBlocked);
+                Assert.AreEqual(walletInfoDTO.JMBG, jmbg);
+                Assert.AreEqual(walletInfoDTO.FirstName, "TestIme");
+                Assert.AreEqual(walletInfoDTO.LastName, "TestPrezime");
+                Assert.AreEqual(walletInfoDTO.Bank, BankType.FirstBank);
+                Assert.AreEqual(walletInfoDTO.BankAccountNumber, "360123456789999874");
+                Assert.AreEqual(walletInfoDTO.Balance, 0m);
+                Assert.AreEqual(walletInfoDTO.IsBlocked, false);
 
 
             }
@@ -106,6 +105,37 @@ namespace Tests.CoreApplicationServicesTests
             }
         }
 
+        [TestMethod]
+        public async Task SuccessGetWalletInfoTest2()
+        {
+
+            try
+            {
+                string jmbg = "2904992785075";
+                //Arrange
+                var walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+                string password = await walletService.CreateWallet(jmbg, "TestIme", "TestPrezime", (short)BankType.FirstBank, "360123456789999874", "1234");
+                await walletService.BlockWallet(jmbg, Configuration["AdminPASS"]);
+                //Act
+                var walletInfoDTO = await walletService.GetWalletInfo(jmbg, password);
+
+                //Assert
+
+                Assert.AreEqual(walletInfoDTO.JMBG, jmbg);
+                Assert.AreEqual(walletInfoDTO.FirstName, "TestIme");
+                Assert.AreEqual(walletInfoDTO.LastName, "TestPrezime");
+                Assert.AreEqual(walletInfoDTO.Bank, BankType.FirstBank);
+                Assert.AreEqual(walletInfoDTO.BankAccountNumber, "360123456789999874");
+                Assert.AreEqual(walletInfoDTO.Balance, 0m);
+                Assert.AreEqual(walletInfoDTO.IsBlocked, true);
+
+
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail("Unexpected error: " + ex.Message);
+            }
+        }
         [TestMethod]
         public async Task FailGetWalletInfoTest1()
         {
