@@ -1,4 +1,5 @@
 ﻿using Common.Utils;
+using Core.ApplicationServices.DTOs;
 using Core.Domain.Entities;
 using Core.Domain.Repositories;
 using Core.Domain.Services.Internal.BankRoutinService.Interface;
@@ -344,6 +345,40 @@ namespace ApplicationServices
             await CoreUnitOfWork.WalletRepository.Update(wallet);
             await CoreUnitOfWork.SaveChangesAsync();
 
+        }
+
+        public async Task<WalletInfoDTO> GetWalletInfo(string jmbg, string pass)
+        {
+            if (string.IsNullOrEmpty(jmbg))
+            {
+                throw new ArgumentNullException($"{nameof(jmbg)}");
+            }
+            if (string.IsNullOrEmpty(pass))
+            {
+                throw new ArgumentNullException($"{nameof(pass)}");
+            }
+            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
+            if (wallet == null)
+            {
+                throw new InvalidOperationException($"{nameof(Wallet)} with JMBG = {jmbg} doesn't exist");
+            }
+            if (!wallet.IsPassValid(pass))
+            {
+                throw new InvalidOperationException($"Invalid password.");
+            }
+            return new WalletInfoDTO(
+                wallet.JMBG,
+                wallet.FirstName,
+                wallet.LastName,
+                wallet.Bank,
+                wallet.BankAccountNumber,
+                wallet.Balance,
+                wallet.IsBlocked,
+                wallet.WalletCreationTime,
+                MaxDeposit,
+                wallet.UsedDepositForCurrentMonth,
+                MaxWithdraw,
+                wallet.UsedWithdrawalForCurrentMonth);
         }
 
     }
