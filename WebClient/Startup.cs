@@ -1,13 +1,19 @@
+using ApplicationServices;
+using Core.Domain.Repositories;
+using Core.Domain.Services.External.BankService;
+using Core.Domain.Services.Internal.BankRoutinService.Implementations;
+using Core.Domain.Services.Internal.BankRoutinService.Interface;
+using Core.Domain.Services.Internal.FeeService.Implementations;
+using Core.Domain.Services.Internal.FeeService.Interface;
+using Core.Infrastructure.DataAccess.EfCoreDataAccess;
+using EfCoreDataAccess;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MockBankService;
 
 namespace WebClient
 {
@@ -24,6 +30,16 @@ namespace WebClient
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.AddDbContextPool<EfCoreDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("SmallPaymentPlatformDevConnection"));
+            });
+            services.AddScoped<ICoreUnitOfWork, EfCoreUnitOfWork>();
+            services.AddScoped<WalletService>();
+            services.AddScoped<IFirstBankService, FirstBankService>();
+            services.AddScoped<IBankRoutingService, BankRoutingService>();
+            services.AddScoped<IFeeService, FeeService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,6 +61,7 @@ namespace WebClient
             app.UseRouting();
 
             app.UseAuthorization();
+
 
             app.UseEndpoints(endpoints =>
             {

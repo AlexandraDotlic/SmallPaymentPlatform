@@ -1,0 +1,45 @@
+version: '2.4'
+      
+        
+services:
+    mssql:
+        image: mcr.microsoft.com/mssql/server:latest
+        container_name: smallpaymentplatform_mssql
+        hostname: smallpaymentplatform_mssql
+        ports:
+            - "1433:1433"
+        environment: 
+            SA_PASSWORD: Beograd011!
+            ACCEPT_EULA: "Y"
+        volumes: 
+            - "mssqldata:/var/lib/mssql"
+        networks:
+            - smallpaymentplatform_net
+        healthcheck:
+          test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-U", "sa", "-P", "Beograd011!"]
+          interval: 20s
+          timeout: 10s
+          start_period: 5s
+          retries: 5
+          
+    webclient:
+        build:
+            context: .
+            dockerfile: ./WebClient/Dockerfile
+        image: smallpaymentplatform/smallpaymentplatform_webclient:0.1
+        container_name: smallpaymentplatform_webclient
+        hostname: smallpaymentplatform_webclient
+        ports: 
+            - "8020:80"
+        depends_on: 
+            mssql:
+                condition: service_healthy
+        
+        networks: 
+            - smallpaymentplatform_net
+
+volumes:
+    mssqldata:       
+
+networks: 
+    smallpaymentplatform_net:
