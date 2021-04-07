@@ -20,6 +20,7 @@ namespace Core.Domain.Entities
         public bool IsBlocked { get; private set; }
         public DateTime WalletCreationTime { get; private set; }
         public DateTime LastTransferDateTime { get; private set; }
+        public byte[] RowVersion { get; private set; }
 
         private string PASS;
 
