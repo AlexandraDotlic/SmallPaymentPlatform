@@ -27,7 +27,7 @@
                 <div class="form-group">
                     <label asp-for="BankType" class="control-label">Bank:</label>
                     <select asp-for="BankType" class="form-control" asp-items="Html.GetEnumSelectList<BankType>().Where(type => type.Value != 0.ToString())">
-                        <option selected>Please select</option>
+                        <option selected>Select bank</option>
                     </select>
                     <span asp-validation-for="BankType" class="text-danger"></span>
                 </div>
@@ -75,6 +75,6 @@
         <script src="~/js/helper.js"></script>
         @if (ViewData["Success"] != null)
         {
-            <script type="text/javascript">ShowMessage('@ViewData["Success"].ToString()', 'Wallet succesfully created. Password: @ViewData["WalletPASS"].ToString().', '@(ViewData["ErrorMessage"] == null ? "" : ViewData["ErrorMessage"])');</script>
+            <script type="text/javascript">ShowMessage('@ViewData["Success"].ToString()', 'Wallet succesfully created. Password: @(ViewData["WalletPASS"] == null ? "" : ViewData["WalletPASS"].ToString()).', '@(ViewData["ErrorMessage"] == null ? "" : ViewData["ErrorMessage"])');</script>
         }
     }

@@ -67,6 +67,17 @@ namespace Tests.CoreApplicationServicesTests
                 await CoreUnitOfWork.WalletRepository.Delete(wallet);
                 await CoreUnitOfWork.SaveChangesAsync();
             }
+
+            Wallet wallet2 = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(
+                   wallet => wallet.JMBG == "1203008780011",
+                   wallet => wallet.Transactions
+               );
+
+            if (wallet2 != null)
+            {
+                await CoreUnitOfWork.WalletRepository.Delete(wallet);
+                await CoreUnitOfWork.SaveChangesAsync();
+            }
             await DbContext.DisposeAsync();
             DbContext = null;
         }
@@ -116,6 +127,17 @@ namespace Tests.CoreApplicationServicesTests
             WalletService walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
 
             await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.CreateWallet("1203008780011", "Mika", "Peric", 1, "360123456", "1234"), $"User must be at least 18 years old");
+
+        }
+
+        [TestMethod]
+        public async Task FailCreateWalletTest4()
+        {
+
+            WalletService walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+            string walletPass = await walletService.CreateWallet("1203977780011", "Pera", "Peric", 1, "360123456", "1234");
+
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.CreateWallet("1203977780011", "Pera", "Peric", 1, "360123456", "1234"), $"Wallet already exists");
 
         }
     }
