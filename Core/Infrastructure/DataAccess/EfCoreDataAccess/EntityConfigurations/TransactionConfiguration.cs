@@ -13,6 +13,11 @@ namespace Core.Infrastructure.DataAccess.EfCoreDataAccess.EntityConfigurations
         {
          
             builder.Property(t => t.Amount).HasPrecision(12, 2);
+            builder.HasOne(a => a.Wallet)
+                .WithMany(w => w.Transactions)
+                .HasForeignKey(a => a.WalletJMBG)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }
