@@ -25,7 +25,7 @@ namespace Core.Domain.Entities
 
         public Wallet()
         {
-
+            Transactions = new List<Transaction>();
         }
         public Wallet(
             string jMBG, 
