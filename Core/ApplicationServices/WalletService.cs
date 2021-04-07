@@ -58,6 +58,11 @@ namespace ApplicationServices
             {
                 throw new ArgumentNullException($"{nameof(jmbg)}");
             }
+            Wallet existingWallet = await CoreUnitOfWork.WalletRepository.GetById(jmbg);
+            if(existingWallet != null)
+            {
+                throw new InvalidOperationException($"Wallet with JMBG = {jmbg} already exists");
+            }
             //provera ka servisu banke da li uopste moze da se kreira wallet
             var response = await BankRoutingService.CheckStatus(jmbg, bankPIN, (BankType)bankType);
 
