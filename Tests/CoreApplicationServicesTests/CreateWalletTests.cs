@@ -56,11 +56,23 @@ namespace Tests.CoreApplicationServicesTests
         [TestCleanup()]
         public async Task Cleanup()
         {
+            CoreUnitOfWork.ClearTracker();
+            Wallet wallet = await CoreUnitOfWork.WalletRepository.GetFirstOrDefaultWithIncludes(
+                    wallet => wallet.JMBG == "1203977780011",
+                    wallet => wallet.Transactions
+                );
+
+            if (wallet != null)
+            {
+                await CoreUnitOfWork.WalletRepository.Delete(wallet);
+                await CoreUnitOfWork.SaveChangesAsync();
+            }
             await DbContext.DisposeAsync();
-            CoreUnitOfWork = null;
+            DbContext = null;
         }
+
         [TestMethod]
-        public async Task TestCreateWallet()
+        public async Task SuccessCreateWalletTest()
         {
 
             WalletService walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
@@ -78,8 +90,32 @@ namespace Tests.CoreApplicationServicesTests
             Assert.AreEqual("360123456", wallet.BankAccountNumber);
             Assert.AreEqual("1234", wallet.BankPIN);
             Assert.AreEqual(true, wallet.IsPassValid(walletPass));
+        }
+        [TestMethod]
+        public async Task FailCreateWalletTest1()
+        {
 
+            WalletService walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+           
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.CreateWallet("1203977780011", "Pera", "Peric", 1, "360123456", null), $"Invalid bank PIN");
 
+        }
+        [TestMethod]
+        public async Task FailCreateWalletTest2()
+        {
+
+            WalletService walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.CreateWallet("1203977780011", "Pera", "Peric", 1, "360123456", "0000"), $"Invalid bank PIN");
+
+        }
+        [TestMethod]
+        public async Task FailCreateWalletTest3()
+        {
+
+            WalletService walletService = new WalletService(CoreUnitOfWork, BankRoutingService, FeeService, Configuration);
+
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await walletService.CreateWallet("1203008780011", "Mika", "Peric", 1, "360123456", "1234"), $"User must be at least 18 years old");
 
         }
     }

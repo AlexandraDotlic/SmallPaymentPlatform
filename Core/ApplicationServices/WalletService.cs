@@ -54,6 +54,10 @@ namespace ApplicationServices
             string bankPIN
             )
         {
+            if (string.IsNullOrEmpty(jmbg))
+            {
+                throw new ArgumentNullException($"{nameof(jmbg)}");
+            }
             //provera ka servisu banke da li uopste moze da se kreira wallet
             var response = await BankRoutingService.CheckStatus(jmbg, bankPIN, (BankType)bankType);
 
@@ -77,6 +81,14 @@ namespace ApplicationServices
         }
         public async Task Deposit(string jmbg, string pass, decimal amount)
         {
+            if (string.IsNullOrEmpty(jmbg))
+            {
+                throw new ArgumentNullException($"{nameof(jmbg)}");
+            }
+            if (string.IsNullOrEmpty(pass))
+            {
+                throw new ArgumentNullException($"{nameof(pass)}");
+            }
             if (amount < 0)
             {
                 throw new InvalidOperationException("Amount must be greater than 0");
@@ -121,6 +133,14 @@ namespace ApplicationServices
         }
         public async Task Withdraw(string jmbg, string pass, decimal amount)
         {
+            if (string.IsNullOrEmpty(jmbg))
+            {
+                throw new ArgumentNullException($"{nameof(jmbg)}");
+            }
+            if (string.IsNullOrEmpty(pass))
+            {
+                throw new ArgumentNullException($"{nameof(pass)}");
+            }
             if (amount < 0)
             {
                 throw new InvalidOperationException("Amount must be greater than 0");
@@ -166,6 +186,18 @@ namespace ApplicationServices
 
         public async Task Transfer(string sourceWalletJmbg, string sourceWalletPass, decimal amount, string destinationWalletJmbg)
         {
+            if (string.IsNullOrEmpty(sourceWalletJmbg))
+            {
+                throw new ArgumentNullException($"{nameof(sourceWalletJmbg)}");
+            }
+            if (string.IsNullOrEmpty(sourceWalletPass))
+            {
+                throw new ArgumentNullException($"{nameof(sourceWalletPass)}");
+            }
+            if (string.IsNullOrEmpty(destinationWalletJmbg))
+            {
+                throw new ArgumentNullException($"{nameof(destinationWalletJmbg)}");
+            }
             if (amount < 0)
             {
                 throw new InvalidOperationException("Amount must be greater than 0");
@@ -239,6 +271,14 @@ namespace ApplicationServices
 
         public async Task<decimal> CalculateTransferFee(string jmbg, string pass, decimal amount)
         {
+            if (string.IsNullOrEmpty(jmbg))
+            {
+                throw new ArgumentNullException($"{nameof(jmbg)}");
+            }
+            if (string.IsNullOrEmpty(pass))
+            {
+                throw new ArgumentNullException($"{nameof(pass)}");
+            }
             if (amount < 0)
             {
                 throw new InvalidOperationException("Amount must be greater than 0");
